@@ -13,16 +13,21 @@ Questa è la pagina Get!
 <body style="background-color:orange">
 
 <form action = "Servlet" method ="get">
-Inserire parametro con il metodo GET :<br>
+Inserire parametro con il metodo GET  : &nbsp;
 <input type="hidden" name = "param" value = "100">
 <input type = submit>
 </form>
 
 <p><form action = "Servlet" method ="post">
-Inserire parametro con il metodo POST :<br>
+Inserire parametro con il metodo POST :
 <input type="hidden" name = "param" value = "200">
 <input type = submit>
 </form></p>
+
+<h2>Il parametro inserito vale: ${param }</h2>
+
+<?php print_r($_POST); ?>
+
 
 
 </body>

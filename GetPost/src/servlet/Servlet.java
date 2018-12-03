@@ -29,13 +29,16 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		int a = 5;
+		/*int a = 5;
 		int b = 10;
 		
-		int res = a+b;
+		int res = a+b;*/
+		
+		Somma res = new Somma();
+		
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher("get.jsp");
-		request.setAttribute("risultato", res);
+		request.setAttribute("risultato", res.addizione(5, 10));
 		dispatcher.forward(request, response);
 		
 	}
@@ -46,13 +49,15 @@ public class Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
-		int a = 5;
+		/*int a = 5;
 		int b = 10;
 		
-		int res = a+b;
+		int res = a+b;*/
+		
+		Somma res = new Somma();
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher("post.jsp");
-		request.setAttribute("risultato", res);
+		request.setAttribute("risultato", res.addizione(5, 10));
 		dispatcher.forward(request, response);
 		
 	}
