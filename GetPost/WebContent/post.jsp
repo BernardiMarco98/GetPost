@@ -24,7 +24,7 @@ Inserire parametro con il metodo GET : &nbsp;
 Inserire parametro con il metodo POST :
 <input type="hidden" name = "param" value = "200">
 <input type = submit>
-</form></p>
+</form>
 
 <h2>Il parametro inserito vale: ${param }</h2>
 

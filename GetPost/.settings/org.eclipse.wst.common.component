@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="GetPost">
+        
+    <wb-module deploy-name="GetPost2.0">
+                
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
+                
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <property name="context-root" value="GetPost"/>
-        <property name="java-output-path" value="/GetPost/build/classes"/>
+                
+        <property name="java-output-path" value="/GetPost2.0/build/classes"/>
+        <property name="context-root" value="GetPost2.0"/>
+            
     </wb-module>
+    
 </project-modules>
