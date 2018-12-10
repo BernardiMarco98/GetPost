@@ -35,39 +35,57 @@ public class Servlet extends HttpServlet {
 		RequestDispatcher dispatcher = request.getRequestDispatcher("getpost.jsp");
 		
 				
-		Somma ris = new Somma();
+		
 		   
     	String a = (String) request.getParameter("valore1");
     	String b = (String) request.getParameter("valore2");
     	
     	if (a==null && b==null)
     	{
-    	
-    		Colore col = new Colore();
-    		request.setAttribute("colore", col.setColore("white"));
+    		request.setAttribute("colore", "white");
     	}
     	else
     	{
     		    	
     		request.getAttribute("valore2");
     	
-    		int x = ris.converti(a);
-    		int y = ris.converti(b);
+    		int x;
+    		int y;
     	
+    		try  
+    		{
+    			x= Integer.parseInt(a); 
+    		}
+    		catch (Exception e)
+    		{
+    			x= 2147483647;   			
+    		}
+    		
+    		try  
+    		{
+    			y= Integer.parseInt(b); 
+    		}
+    		catch (Exception e)
+    		{
+    			y= 2147483647;
+    			
+    		}
+    		
     		String errore="ERRORE! impossibile eseguire la somma";
     	
     		if(x==2147483647 || y==2147483647)
     		{
     			request.setAttribute("risultato", errore);
-    			Colore col = new Colore();
-    			request.setAttribute("colore", col.setColore("yellow"));
+    			
+    			request.setAttribute("colore", "yellow");
 
     		}
     		else 
     		{
-    			request.setAttribute("risultato", ris.addizione(x,y));
-    			Colore col = new Colore();
-    			request.setAttribute("colore", col.setColore("yellow"));
+    			int res=x+y;
+    			request.setAttribute("risultato", res);
+    			
+    			request.setAttribute("colore", "yellow");
     		}
     	}
     	
@@ -84,33 +102,49 @@ public class Servlet extends HttpServlet {
 	
     	
 		RequestDispatcher dispatcher = request.getRequestDispatcher("getpost.jsp");
-		
-
-				
-		Somma ris = new Somma();
-		   
+	   
     	String a = (String) request.getParameter("valore1");
     	String b = (String) request.getParameter("valore2");
     	
     	request.getAttribute("valore2");
+    	int x;
+    	int y;
     	
-    	int x = ris.converti(a);
-    	int y = ris.converti(b);
+    	try  
+		{
+			x= Integer.parseInt(a); 
+		}
+		catch (Exception e)
+		{
+			x= 2147483647;
+			
+		}
+		
+		try  
+		{
+			y= Integer.parseInt(b); 
+		}
+		catch (Exception e)
+		{
+			y= 2147483647;
+			
+		}
     	
     	
-String errore="ERRORE! impossibile eseguire la somma";
+		String errore="ERRORE! impossibile eseguire la somma";
     	
     	if(x== 2147483647 || y== 2147483647 )
     	{
     		request.setAttribute("risultato", errore);
-    		Colore col = new Colore();
-    		request.setAttribute("colore", col.setColore("red"));
+    		
+    		request.setAttribute("colore", "red");
     	}
     	else 
     	{
-    		request.setAttribute("risultato", ris.addizione(x,y));
-    		Colore col = new Colore();
-    		request.setAttribute("colore", col.setColore("red"));
+    		int res=x+y;
+    		request.setAttribute("risultato", res);
+    		
+    		request.setAttribute("colore", "red");
     	}
     	
     	
