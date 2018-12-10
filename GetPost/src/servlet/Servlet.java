@@ -56,7 +56,7 @@ public class Servlet extends HttpServlet {
     	
     		String errore="ERRORE! impossibile eseguire la somma";
     	
-    		if(x==10000 || y==10000)
+    		if(x==2147483647 || y==2147483647)
     		{
     			request.setAttribute("risultato", errore);
     			Colore col = new Colore();
@@ -100,7 +100,7 @@ public class Servlet extends HttpServlet {
     	
 String errore="ERRORE! impossibile eseguire la somma";
     	
-    	if(x==10000 || y==10000)
+    	if(x== 2147483647 || y== 2147483647 )
     	{
     		request.setAttribute("risultato", errore);
     		Colore col = new Colore();

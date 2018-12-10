@@ -30,7 +30,7 @@ Inserire parametro con il metodo POST :
 
 Inserire i numeri da sommare con il metodo GET :
 
-  Colore col = new Colore();<p><form action = "Servlet" method ="get">
+<p><form action = "Servlet" method ="get">
 <input type="text" name="valore1"  /> <br>
 <p><input type="text" name="valore2"  /> <br>
 <p><input type = submit >
