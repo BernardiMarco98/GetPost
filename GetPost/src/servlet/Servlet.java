@@ -35,7 +35,7 @@ public class Servlet extends HttpServlet {
 		RequestDispatcher dispatcher = request.getRequestDispatcher("getpost.jsp");
 		
 				
-		
+		boolean r = false;
 		   
     	String a = (String) request.getParameter("valore1");
     	String b = (String) request.getParameter("valore2");
@@ -49,8 +49,8 @@ public class Servlet extends HttpServlet {
     		    	
     		request.getAttribute("valore2");
     	
-    		int x;
-    		int y;
+    		int x = 0;
+    		int y = 0;
     	
     		try  
     		{
@@ -58,7 +58,7 @@ public class Servlet extends HttpServlet {
     		}
     		catch (Exception e)
     		{
-    			x= 2147483647;   			
+    			r = true;   			
     		}
     		
     		try  
@@ -67,13 +67,12 @@ public class Servlet extends HttpServlet {
     		}
     		catch (Exception e)
     		{
-    			y= 2147483647;
-    			
+    			r = true;	
     		}
     		
     		String errore="ERRORE! impossibile eseguire la somma";
     	
-    		if(x==2147483647 || y==2147483647)
+    		if(r == true)
     		{
     			request.setAttribute("risultato", errore);
     			
@@ -103,12 +102,14 @@ public class Servlet extends HttpServlet {
     	
 		RequestDispatcher dispatcher = request.getRequestDispatcher("getpost.jsp");
 	   
+		boolean r = false;
+		
     	String a = (String) request.getParameter("valore1");
     	String b = (String) request.getParameter("valore2");
     	
     	request.getAttribute("valore2");
-    	int x;
-    	int y;
+    	int x = 0;
+    	int y = 0;
     	
     	try  
 		{
@@ -116,7 +117,7 @@ public class Servlet extends HttpServlet {
 		}
 		catch (Exception e)
 		{
-			x= 2147483647;
+			r = true;
 			
 		}
 		
@@ -126,14 +127,14 @@ public class Servlet extends HttpServlet {
 		}
 		catch (Exception e)
 		{
-			y= 2147483647;
+			r = true;
 			
 		}
     	
     	
 		String errore="ERRORE! impossibile eseguire la somma";
     	
-    	if(x== 2147483647 || y== 2147483647 )
+    	if(r == true )
     	{
     		request.setAttribute("risultato", errore);
     		
