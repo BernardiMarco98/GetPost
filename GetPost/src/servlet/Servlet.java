@@ -31,64 +31,51 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
-    	
 		RequestDispatcher dispatcher = request.getRequestDispatcher("getpost.jsp");
 		
 				
 		boolean r = false;
 		   
-    	String a = (String) request.getParameter("valore1");
-    	String b = (String) request.getParameter("valore2");
+		String a = (String) request.getParameter("valore1");
+		String b = (String) request.getParameter("valore2");
     	
-    	if (a==null && b==null)
-    	{
-    		request.setAttribute("colore", "white");
-    	}
-    	else
-    	{
-    		    	
-    		request.getAttribute("valore2");
+		if (a == null && b == null)
+		{
+			request.setAttribute("colore", "white");
+		}
+		else
+		{
+			
+			request.getAttribute("valore2");
     	
-    		int x = 0;
-    		int y = 0;
-    	
-    		try  
-    		{
-    			x= Integer.parseInt(a); 
-    		}
-    		catch (Exception e)
-    		{
-    			r = true;   			
-    		}
-    		
-    		try  
-    		{
-    			y= Integer.parseInt(b); 
-    		}
-    		catch (Exception e)
-    		{
-    			r = true;	
-    		}
-    		
-    		String errore="ERRORE! impossibile eseguire la somma";
-    	
-    		if(r == true)
-    		{
-    			request.setAttribute("risultato", errore);
-    			
-    			request.setAttribute("colore", "yellow");
+			int x = 0;
+			int y = 0;
+			
+			try  
+			{
+				x = Integer.parseInt(a); 
+				y = Integer.parseInt(b);
+			}
+			catch (Exception e)
+			{
+				r = true;   			
+			}
 
-    		}
-    		else 
-    		{
-    			int res=x+y;
-    			request.setAttribute("risultato", res);
-    			
-    			request.setAttribute("colore", "yellow");
-    		}
-    	}
-    	
-    	
+			String errore="ERRORE! impossibile eseguire la somma";
+			
+			if(r == true)
+			{
+				request.setAttribute("risultato", errore);
+				
+				request.setAttribute("colore", "yellow");
+			}
+			else 
+			{
+				int res = x+y;
+				request.setAttribute("risultato", res);
+				request.setAttribute("colore", "yellow");
+			}
+		}
 		dispatcher.forward(request, response);
 	}
 
@@ -97,61 +84,47 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		
-	
-    	
+
 		RequestDispatcher dispatcher = request.getRequestDispatcher("getpost.jsp");
-	   
+		
+				
 		boolean r = false;
-		
-    	String a = (String) request.getParameter("valore1");
-    	String b = (String) request.getParameter("valore2");
+		   
+		String a = (String) request.getParameter("valore1");
+		String b = (String) request.getParameter("valore2");
     	
-    	request.getAttribute("valore2");
-    	int x = 0;
-    	int y = 0;
-    	
-    	try  
-		{
-			x= Integer.parseInt(a); 
-		}
-		catch (Exception e)
-		{
-			r = true;
 			
-		}
-		
+		request.getAttribute("valore2");
+    	
+		int x = 0;
+		int y = 0;
+			
 		try  
 		{
-			y= Integer.parseInt(b); 
+			x = Integer.parseInt(a); 
+			y = Integer.parseInt(b);
 		}
 		catch (Exception e)
 		{
-			r = true;
-			
+			r = true;   			
 		}
-    	
-    	
+
 		String errore="ERRORE! impossibile eseguire la somma";
-    	
-    	if(r == true )
-    	{
-    		request.setAttribute("risultato", errore);
-    		
-    		request.setAttribute("colore", "red");
-    	}
-    	else 
-    	{
-    		int res=x+y;
-    		request.setAttribute("risultato", res);
-    		
-    		request.setAttribute("colore", "red");
-    	}
-    	
-    	
-		dispatcher.forward(request, response);
-
 		
+		if(r == true)
+		{
+			request.setAttribute("risultato", errore);
+				
+			request.setAttribute("colore", "red");
+		}
+		else 
+		{
+			int res = x+y;
+			request.setAttribute("risultato", res);
+			request.setAttribute("colore", "red");
+		}
+	
+	dispatcher.forward(request, response);
 	}
-
 }
+
