@@ -21,10 +21,10 @@ public class Servlet extends HttpServlet {
 	String coloreHome = "white";
 	String coloreGet = "yellow";
 	String colorePost = "red";
-	String val1 = "valore1";
-	String val2 = "valore2";
-	String paramResult = "risultato";
-	String paramColor = "colore";
+	String reqParamNameVal1 = "valore1";
+	String reqParamNameVal2 = "valore2";
+	String jspParamNameResult = "risultato";
+	String reqParamNameColor = "colore";
 	
 	/**
 	 * qui tu stai dichiarando due variabili a livello di Servlet
@@ -98,12 +98,12 @@ public class Servlet extends HttpServlet {
 
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);		
 		   
-		String a = (String) request.getParameter(val1);
-		String b = (String) request.getParameter(val2);
+		String a = (String) request.getParameter(reqParamNameVal1);
+		String b = (String) request.getParameter(reqParamNameVal2);
 		
 		if (a == null && b == null)	
 		{
-			request.setAttribute(paramColor, coloreHome);
+			request.setAttribute(reqParamNameColor, coloreHome);
 		}
 		else
 		{
@@ -111,18 +111,18 @@ public class Servlet extends HttpServlet {
 			int x = 0;
 			int y = 0;
 			
-			request.setAttribute(paramColor, coloreGet);
+			request.setAttribute(reqParamNameColor, coloreGet);
 			
 			try  
 			{
 				x = Integer.parseInt(a); 
 				y = Integer.parseInt(b);
 				int res = x + y;
-				request.setAttribute(paramResult, res);
+				request.setAttribute(jspParamNameResult, res);
 			}
 			catch (Exception e)
 			{
-				request.setAttribute(paramResult, errore);
+				request.setAttribute(jspParamNameResult, errore);
 			}		
 		}
 		dispatcher.forward(request, response);
@@ -135,8 +135,8 @@ public class Servlet extends HttpServlet {
 		// TODO Auto-generated method stub
 
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);			
-		String a = (String) request.getParameter(val1);
-		String b = (String) request.getParameter(val2);
+		String a = (String) request.getParameter(reqParamNameVal1);
+		String b = (String) request.getParameter(reqParamNameVal2);
 		
 		int x = 0;
 		int y = 0;
@@ -146,14 +146,14 @@ public class Servlet extends HttpServlet {
 			x = Integer.parseInt(a); 
 			y = Integer.parseInt(b);
 			int res = x + y;
-			request.setAttribute(paramResult, res);
+			request.setAttribute(jspParamNameResult, res);
 		}
 		catch (Exception e)
 		{
-			request.setAttribute(paramResult, errore);
+			request.setAttribute(jspParamNameResult, errore);
 		}		
 		
-	request.setAttribute(paramColor, colorePost);
+	request.setAttribute(reqParamNameColor, colorePost);
 				
 	dispatcher.forward(request, response);
 	
