@@ -23,6 +23,8 @@ public class Servlet extends HttpServlet {
 	String colorePost = "red";
 	String val1 = "valore1";
 	String val2 = "valore2";
+	String paramResult = "risultato";
+	String paramColor = "colore";
 	
 	/**
 	 * qui tu stai dichiarando due variabili a livello di Servlet
@@ -101,7 +103,7 @@ public class Servlet extends HttpServlet {
 		
 		if (a == null && b == null)	
 		{
-			request.setAttribute("colore", coloreHome);
+			request.setAttribute(paramColor, coloreHome);
 		}
 		else
 		{
@@ -109,18 +111,18 @@ public class Servlet extends HttpServlet {
 			int x = 0;
 			int y = 0;
 			
-			request.setAttribute("colore", coloreGet);
+			request.setAttribute(paramColor, coloreGet);
 			
 			try  
 			{
 				x = Integer.parseInt(a); 
 				y = Integer.parseInt(b);
 				int res = x + y;
-				request.setAttribute("risultato", res);
+				request.setAttribute(paramResult, res);
 			}
 			catch (Exception e)
 			{
-				request.setAttribute("risultato", errore);
+				request.setAttribute(paramResult, errore);
 			}		
 		}
 		dispatcher.forward(request, response);
@@ -143,15 +145,15 @@ public class Servlet extends HttpServlet {
 		{
 			x = Integer.parseInt(a); 
 			y = Integer.parseInt(b);
-			int res = x+y;
-			request.setAttribute("risultato", res);
+			int res = x + y;
+			request.setAttribute(paramResult, res);
 		}
 		catch (Exception e)
 		{
-			request.setAttribute("risultato", errore);
+			request.setAttribute(paramResult, errore);
 		}		
 		
-	request.setAttribute("colore", colorePost);
+	request.setAttribute(paramColor, colorePost);
 				
 	dispatcher.forward(request, response);
 	
