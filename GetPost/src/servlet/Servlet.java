@@ -24,7 +24,7 @@ public class Servlet extends HttpServlet {
 	String reqParamNameVal1 = "valore1";
 	String reqParamNameVal2 = "valore2";
 	String jspParamNameResult = "risultato";
-	String reqParamNameColor = "colore";
+	String jspParamNameColor = "colore";
 	
 	/**
 	 * qui tu stai dichiarando due variabili a livello di Servlet
@@ -103,7 +103,7 @@ public class Servlet extends HttpServlet {
 		
 		if (a == null && b == null)	
 		{
-			request.setAttribute(reqParamNameColor, coloreHome);
+			request.setAttribute(jspParamNameColor, coloreHome);
 		}
 		else
 		{
@@ -111,7 +111,7 @@ public class Servlet extends HttpServlet {
 			int x = 0;
 			int y = 0;
 			
-			request.setAttribute(reqParamNameColor, coloreGet);
+			request.setAttribute(jspParamNameColor, coloreGet);
 			
 			try  
 			{
@@ -153,7 +153,7 @@ public class Servlet extends HttpServlet {
 			request.setAttribute(jspParamNameResult, errore);
 		}		
 		
-	request.setAttribute(reqParamNameColor, colorePost);
+	request.setAttribute(jspParamNameColor, colorePost);
 				
 	dispatcher.forward(request, response);
 	
