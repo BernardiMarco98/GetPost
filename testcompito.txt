@@ -1,0 +1,142 @@
+Test Compito 
+
+
+TEST PRIMO ACCESSO – 1:
+•	Comportamento atteso: colore sfondo bianco, risultato vuoto e id sessione
+
+
+TEST CON VALORE VALIDO – 1:
+•	Valori da scrivere nella form GET: valore1 10, valore2 20
+•	Comportamento atteso: colore sfondo giallo, risultato e id sessione
+
+TEST CON VALORE VALIDO – 2:
+•	Valori da scrivere nella form POST: valore1 30, valore2 40
+•	Comportamento atteso: colore sfondo rosso, data, metodo, risultato e id sessione,
+somma precedente: 10+20=30, 13/12/2018 10:31:10 GET
+
+TEST CON VALORE NON VALIDO – 1:
+•	Valori da scrivere nella form POST: valore1 pippo, valore2 20
+•	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 10+20=30, 13/12/2018 10:31:10 GET
+ 30+40=70, 13/12/2018 10:32:10 POST
+
+TEST CON VALORE NON VALIDO – 2:
+•	Valori da scrivere nella form GET: valore1 10, valore2 pippo
+•	Comportamento atteso: colore sfondo giallo,data, metodo, risultato (errore) e id sessione,
+somme precedenti: 10+20=30, 13/12/2018 10:31:10 GET
+ 30+40=70, 13/12/2018 10:32:10 POST
+ pippo+20=errore, 13/12/2018 10:33:10 POST
+
+TEST CON VALORE NON VALIDO – 3:
+•	Valori da scrivere nella form GET: valore1 pippo, valore2 10
+•	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 10+20=30, 13/12/2018 10:31:10 GET
+ 30+40=70, 13/12/2018 10:32:10 POST
+ pippo+20=errore, 13/12/2018 10:33:10 POST
+ 10+pippo=errore, 13/12/2018 10:34:10 GET
+
+
+
+
+TEST CON VALORE NON VALIDO – 4:
+•	Valori da scrivere nella form POST: valore1 20, valore2 pippo
+•	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 30+40=70, 13/12/2018 10:32:10 POST
+ pippo+20=errore, 13/12/2018 10:33:10 POST
+ 10+pippo=errore, 13/12/2018 10:34:10 GET
+ pippo+10=errore, 13/12/2018 10:35:10 GET
+
+TEST CON VALORE NON VALIDO – 5:
+•	Valori da scrivere nella form POST: valore1 pippo, valore2 
+•	Comportamento atteso: colore sfondo rosso, data, metodo risultato (errore) e id sessione,
+somme precedenti: pippo+20=errore, 13/12/2018 10:33:10 POST
+ 10+pippo=errore, 13/12/2018 10:34:10 GET
+ pippo+10=errore, 13/12/2018 10:35:10 GET
+ 20+pippo=errore, 13/12/2018 10:36:10 POST
+
+TEST CON VALORE NON VALIDO – 6:
+•	Valori da scrivere nella form GET: valore1 pippo, valore2 
+•	Comportamento atteso: colore sfondo giallo, data, metodo risultato (errore) e id sessione,
+somme precedenti: 10+pippo=errore, 13/12/2018 10:34:10 GET
+ pippo+10=errore, 13/12/2018 10:35:10 GET
+ 20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+
+TEST CON VALORE NON VALIDO – 7:
+•	Valori da scrivere nella form GET: valore1 , valore2 pippo
+•	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti: pippo+10=errore, 13/12/2018 10:35:10 GET
+ 20+pippo=errore, 13/12/2018 10:36:10 POST
+ pippo+	=errore, 13/12/2018 10:37:10 POST
+ pippo+	=errore, 13/12/2018 10:38:10 GET
+
+TEST CON VALORE NON VALIDO – 8:
+•	Valori da scrivere nella form POST: valore1 , valore2 pippo
+•	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 20+pippo=errore, 13/12/2018 10:36:10 POST
+ pippo+	=errore, 13/12/2018 10:37:10 POST
+ pippo+	=errore, 13/12/2018 10:38:10 GET
+ 	+pippo=errore,13/12/2018 10:39:10 GET
+
+
+TEST CON VALORE NON VALIDO – 9:
+•	Valori da scrivere nella form GET: valore1 10, valore2 
+•	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti: pippo+	=errore, 13/12/2018 10:37:10 POST
+ pippo+	=errore, 13/12/2018 10:38:10 GET 	+pippo=errore,13/12/2018 10:39:10 GET
++pippo=errore,13/12/2018 10:40:10 POST
+
+TEST CON VALORE NON VALIDO – 10:
+•	Valori da scrivere nella form POST: valore1 20, valore2 
+•	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: pippo+	=errore, 13/12/2018 10:38:10 GET 
+		+pippo=errore,13/12/2018 10:39:10 GET
+		+pippo=errore,13/12/2018 10:40:10 POST
+				10+		=errore, 13/12/2018 10:41:10 GET
+
+TEST CON VALORE NON VALIDO – 10:
+•	Valori da scrivere nella form POST: valore1 20, valore2 
+•	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: pippo+	=errore, 13/12/2018 10:38:10 GET
+ 						+pippo=errore,13/12/2018 10:39:10 GET
+			+pippo=errore,13/12/2018 10:40:10 POST
+				10+		=errore, 13/12/2018 10:41:10 GET
+
+TEST CON VALORE NON VALIDO – 11:
+•	Valori da scrivere nella form GET: valore1 , valore2 10
+•	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 	+pippo=errore,13/12/2018 10:39:10 GET
++pippo=errore,13/12/2018 10:40:10 POST
+			10+		=errore, 13/12/2018 10:41:10 GET	
+20+		=errore, 13/12/2018 10:42:10 POST
+
+TEST CON VALORE NON VALIDO – 12:
+•	Valori da scrivere nella form POST: valore1 , valore2 20
+•	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 	+pippo=errore,13/12/2018 10:40:10 POST
+			10+		=errore, 13/12/2018 10:41:10 GET	
+20+		=errore, 13/12/2018 10:42:10 POST
++10=errore,  13/12/2018 10:43:10 GET
+
+TEST CON VALORE NON VALIDO – 13:
+•	Valori da scrivere nella form GET: valore1 , valore2 
+•	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti:10+		=errore, 13/12/2018 10:41:10 GET	
+20+		=errore, 13/12/2018 10:42:10 POST
+					+10=errore,  13/12/2018 10:43:10 GET 
++20=errore,	13/12/2018 10:45:10 POST
+
+
+
+
+
+
+TEST CON VALORE NON VALIDO – 14:
+•	Valori da scrivere nella form POST: valore1 , valore2 
+•	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti:	20+		=errore, 13/12/2018 10:42:10 POST
+					+10=errore,  13/12/2018 10:43:10 GET 
+		 +20=errore,	13/12/2018 10:45:10 POST
+					+	=errore, 13/12/2018 10:46:10 GET 
+
+NB: “Dopo quattro operazioni, la meno recente viene eliminata e viene visualizzata la quinta operazione”
