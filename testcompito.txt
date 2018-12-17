@@ -1,142 +1,154 @@
 Test Compito 
 
 
-TEST PRIMO ACCESSO ñ 1:
-ï	Comportamento atteso: colore sfondo bianco, risultato vuoto e id sessione
+TEST PRIMO ACCESSO ‚Äì 1:
+‚Ä¢	Comportamento atteso: colore sfondo bianco, risultato vuoto e id sessione
 
 
-TEST CON VALORE VALIDO ñ 1:
-ï	Valori da scrivere nella form GET: valore1 10, valore2 20
-ï	Comportamento atteso: colore sfondo giallo, risultato e id sessione
+TEST CON VALORE VALIDO ‚Äì 1:
+‚Ä¢	Valori da scrivere nella form GET: valore1 10, valore2 20
+‚Ä¢	Comportamento atteso: colore sfondo giallo, risultato e id sessione
 
-TEST CON VALORE VALIDO ñ 2:
-ï	Valori da scrivere nella form POST: valore1 30, valore2 40
-ï	Comportamento atteso: colore sfondo rosso, data, metodo, risultato e id sessione,
-somma precedente: 10+20=30, 13/12/2018 10:31:10 GET
+TEST CON VALORE VALIDO ‚Äì 2:
+‚Ä¢	Valori da scrivere nella form POST: valore1 30, valore2 40
+‚Ä¢	Comportamento atteso: colore sfondo rosso, data, metodo, risultato e id sessione,
+somma precedente: 
+10+20=30, 13/12/2018 10:31:10 GET
 
-TEST CON VALORE NON VALIDO ñ 1:
-ï	Valori da scrivere nella form POST: valore1 pippo, valore2 20
-ï	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
-somme precedenti: 10+20=30, 13/12/2018 10:31:10 GET
- 30+40=70, 13/12/2018 10:32:10 POST
+TEST CON VALORE NON VALIDO ‚Äì 1:
+‚Ä¢	Valori da scrivere nella form POST: valore1 pippo, valore2 20
+‚Ä¢	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
 
-TEST CON VALORE NON VALIDO ñ 2:
-ï	Valori da scrivere nella form GET: valore1 10, valore2 pippo
-ï	Comportamento atteso: colore sfondo giallo,data, metodo, risultato (errore) e id sessione,
-somme precedenti: 10+20=30, 13/12/2018 10:31:10 GET
- 30+40=70, 13/12/2018 10:32:10 POST
- pippo+20=errore, 13/12/2018 10:33:10 POST
+TEST CON VALORE NON VALIDO ‚Äì 2:
+‚Ä¢	Valori da scrivere nella form GET: valore1 10, valore2 pippo
+‚Ä¢	Comportamento atteso: colore sfondo giallo,data, metodo, risultato (errore) e id sessione,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
 
-TEST CON VALORE NON VALIDO ñ 3:
-ï	Valori da scrivere nella form GET: valore1 pippo, valore2 10
-ï	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
-somme precedenti: 10+20=30, 13/12/2018 10:31:10 GET
- 30+40=70, 13/12/2018 10:32:10 POST
- pippo+20=errore, 13/12/2018 10:33:10 POST
- 10+pippo=errore, 13/12/2018 10:34:10 GET
+TEST CON VALORE NON VALIDO ‚Äì 3:
+‚Ä¢	Valori da scrivere nella form GET: valore1 pippo, valore2 10
+‚Ä¢	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
 
 
 
 
-TEST CON VALORE NON VALIDO ñ 4:
-ï	Valori da scrivere nella form POST: valore1 20, valore2 pippo
-ï	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
-somme precedenti: 30+40=70, 13/12/2018 10:32:10 POST
- pippo+20=errore, 13/12/2018 10:33:10 POST
- 10+pippo=errore, 13/12/2018 10:34:10 GET
- pippo+10=errore, 13/12/2018 10:35:10 GET
+TEST CON VALORE NON VALIDO ‚Äì 4:
+‚Ä¢	Valori da scrivere nella form POST: valore1 20, valore2 pippo
+‚Ä¢	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
 
-TEST CON VALORE NON VALIDO ñ 5:
-ï	Valori da scrivere nella form POST: valore1 pippo, valore2 
-ï	Comportamento atteso: colore sfondo rosso, data, metodo risultato (errore) e id sessione,
-somme precedenti: pippo+20=errore, 13/12/2018 10:33:10 POST
- 10+pippo=errore, 13/12/2018 10:34:10 GET
- pippo+10=errore, 13/12/2018 10:35:10 GET
- 20+pippo=errore, 13/12/2018 10:36:10 POST
+TEST CON VALORE NON VALIDO ‚Äì 5:
+‚Ä¢	Valori da scrivere nella form POST: valore1 pippo, valore2 
+‚Ä¢	Comportamento atteso: colore sfondo rosso, data, metodo risultato (errore) e id sessione,
+somme precedenti: 
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
 
-TEST CON VALORE NON VALIDO ñ 6:
-ï	Valori da scrivere nella form GET: valore1 pippo, valore2 
-ï	Comportamento atteso: colore sfondo giallo, data, metodo risultato (errore) e id sessione,
-somme precedenti: 10+pippo=errore, 13/12/2018 10:34:10 GET
- pippo+10=errore, 13/12/2018 10:35:10 GET
- 20+pippo=errore, 13/12/2018 10:36:10 POST
+TEST CON VALORE NON VALIDO ‚Äì 6:
+‚Ä¢	Valori da scrivere nella form GET: valore1 pippo, valore2 
+‚Ä¢	Comportamento atteso: colore sfondo giallo, data, metodo risultato (errore) e id sessione,
+somme precedenti: 
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
 pippo+	=errore, 13/12/2018 10:37:10 POST
 
-TEST CON VALORE NON VALIDO ñ 7:
-ï	Valori da scrivere nella form GET: valore1 , valore2 pippo
-ï	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
-somme precedenti: pippo+10=errore, 13/12/2018 10:35:10 GET
- 20+pippo=errore, 13/12/2018 10:36:10 POST
- pippo+	=errore, 13/12/2018 10:37:10 POST
- pippo+	=errore, 13/12/2018 10:38:10 GET
+TEST CON VALORE NON VALIDO ‚Äì 7:
+‚Ä¢	Valori da scrivere nella form GET: valore1 , valore2 pippo
+‚Ä¢	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti:
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+pippo+	=errore, 13/12/2018 10:38:10 GET
 
-TEST CON VALORE NON VALIDO ñ 8:
-ï	Valori da scrivere nella form POST: valore1 , valore2 pippo
-ï	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
-somme precedenti: 20+pippo=errore, 13/12/2018 10:36:10 POST
- pippo+	=errore, 13/12/2018 10:37:10 POST
- pippo+	=errore, 13/12/2018 10:38:10 GET
+TEST CON VALORE NON VALIDO ‚Äì 8:
+‚Ä¢	Valori da scrivere nella form POST: valore1 , valore2 pippo
+‚Ä¢	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 
+20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+pippo+	=errore, 13/12/2018 10:38:10 GET
  	+pippo=errore,13/12/2018 10:39:10 GET
 
 
-TEST CON VALORE NON VALIDO ñ 9:
-ï	Valori da scrivere nella form GET: valore1 10, valore2 
-ï	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
-somme precedenti: pippo+	=errore, 13/12/2018 10:37:10 POST
- pippo+	=errore, 13/12/2018 10:38:10 GET 	+pippo=errore,13/12/2018 10:39:10 GET
-+pippo=errore,13/12/2018 10:40:10 POST
+TEST CON VALORE NON VALIDO ‚Äì 9:
+‚Ä¢	Valori da scrivere nella form GET: valore1 10, valore2 
+‚Ä¢	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 
+pippo+	=errore, 13/12/2018 10:37:10 POST
+pippo+	=errore, 13/12/2018 10:38:10 GET 	
+	+pippo=errore,13/12/2018 10:39:10 GET
+	+pippo=errore,13/12/2018 10:40:10 POST
 
-TEST CON VALORE NON VALIDO ñ 10:
-ï	Valori da scrivere nella form POST: valore1 20, valore2 
-ï	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
-somme precedenti: pippo+	=errore, 13/12/2018 10:38:10 GET 
+TEST CON VALORE NON VALIDO ‚Äì 10:
+‚Ä¢	Valori da scrivere nella form POST: valore1 20, valore2 
+‚Ä¢	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 
+pippo+		=errore, 13/12/2018 10:38:10 GET 
 		+pippo=errore,13/12/2018 10:39:10 GET
 		+pippo=errore,13/12/2018 10:40:10 POST
-				10+		=errore, 13/12/2018 10:41:10 GET
+10+		=errore, 13/12/2018 10:41:10 GET
 
-TEST CON VALORE NON VALIDO ñ 10:
-ï	Valori da scrivere nella form POST: valore1 20, valore2 
-ï	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
-somme precedenti: pippo+	=errore, 13/12/2018 10:38:10 GET
- 						+pippo=errore,13/12/2018 10:39:10 GET
-			+pippo=errore,13/12/2018 10:40:10 POST
-				10+		=errore, 13/12/2018 10:41:10 GET
+TEST CON VALORE NON VALIDO ‚Äì 10:
+‚Ä¢	Valori da scrivere nella form POST: valore1 20, valore2 
+‚Ä¢	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 
+pippo+		=errore, 13/12/2018 10:38:10 GET
+ 	+pippo=errore,13/12/2018 10:39:10 GET
+	+pippo=errore,13/12/2018 10:40:10 POST
+10+		=errore, 13/12/2018 10:41:10 GET
 
-TEST CON VALORE NON VALIDO ñ 11:
-ï	Valori da scrivere nella form GET: valore1 , valore2 10
-ï	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
-somme precedenti: 	+pippo=errore,13/12/2018 10:39:10 GET
-+pippo=errore,13/12/2018 10:40:10 POST
-			10+		=errore, 13/12/2018 10:41:10 GET	
+TEST CON VALORE NON VALIDO ‚Äì 11:
+‚Ä¢	Valori da scrivere nella form GET: valore1 , valore2 10
+‚Ä¢	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti:
+	+pippo=errore,13/12/2018 10:39:10 GET
+	+pippo=errore,13/12/2018 10:40:10 POST
+10+		=errore, 13/12/2018 10:41:10 GET	
 20+		=errore, 13/12/2018 10:42:10 POST
 
-TEST CON VALORE NON VALIDO ñ 12:
-ï	Valori da scrivere nella form POST: valore1 , valore2 20
-ï	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
-somme precedenti: 	+pippo=errore,13/12/2018 10:40:10 POST
-			10+		=errore, 13/12/2018 10:41:10 GET	
+TEST CON VALORE NON VALIDO ‚Äì 12:
+‚Ä¢	Valori da scrivere nella form POST: valore1 , valore2 20
+‚Ä¢	Comportamento atteso: colore sfondo rosso, data, metodo, risultato (errore) e id sessione,
+somme precedenti: 	
+	+pippo=errore,13/12/2018 10:40:10 POST
+10+		=errore, 13/12/2018 10:41:10 GET	
 20+		=errore, 13/12/2018 10:42:10 POST
 +10=errore,  13/12/2018 10:43:10 GET
 
-TEST CON VALORE NON VALIDO ñ 13:
-ï	Valori da scrivere nella form GET: valore1 , valore2 
-ï	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
-somme precedenti:10+		=errore, 13/12/2018 10:41:10 GET	
+TEST CON VALORE NON VALIDO ‚Äì 13:
+‚Ä¢	Valori da scrivere nella form GET: valore1 , valore2 
+‚Ä¢	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti:
+10+		=errore, 13/12/2018 10:41:10 GET	
 20+		=errore, 13/12/2018 10:42:10 POST
-					+10=errore,  13/12/2018 10:43:10 GET 
-+20=errore,	13/12/2018 10:45:10 POST
+	+10=errore,  13/12/2018 10:43:10 GET 
+	+20=errore,	13/12/2018 10:45:10 POST
 
+TEST CON VALORE NON VALIDO ‚Äì 14:
+‚Ä¢	Valori da scrivere nella form POST: valore1 , valore2 
+‚Ä¢	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
+somme precedenti:	
+20+		=errore, 13/12/2018 10:42:10 POST
+	+10=errore,  13/12/2018 10:43:10 GET 
+	+20=errore,13/12/2018 10:45:10 POST
+	+	=errore, 13/12/2018 10:46:10 GET 
 
-
-
-
-
-TEST CON VALORE NON VALIDO ñ 14:
-ï	Valori da scrivere nella form POST: valore1 , valore2 
-ï	Comportamento atteso: colore sfondo giallo, data, metodo, risultato (errore) e id sessione,
-somme precedenti:	20+		=errore, 13/12/2018 10:42:10 POST
-					+10=errore,  13/12/2018 10:43:10 GET 
-		 +20=errore,	13/12/2018 10:45:10 POST
-					+	=errore, 13/12/2018 10:46:10 GET 
-
-NB: ìDopo quattro operazioni, la meno recente viene eliminata e viene visualizzata la quinta operazioneî
+NB: ‚ÄúDopo quattro operazioni, la meno recente viene eliminata e viene visualizzata la quinta operazione‚Äù
