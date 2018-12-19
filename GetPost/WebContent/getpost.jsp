@@ -33,13 +33,12 @@ Inserire parametro con il metodo POST :
 </form>
 -->
 
-<c:forEach items = "${arraylist}" var = "list">
-	<tr>
-	<td>${list.ris}</td>
-	<td>${list.dat}</td>
-	<td>${list.met}</td>
-	</tr>
-</c:forEach>
+<c:if test = "${not empty arraylist }">
+<c:forEach var = "Output" items = "${arraylist}">
+	<c:out value = "${Output.risultato}"></c:out>
+	<c:out value = "${Output.data}"></c:out>
+	<c:out value = "${Output.metodo}"></c:out>
+</c:forEach></c:if>
 
 <h2>Il parametro inserito vale: ${param }</h2>
 
@@ -49,7 +48,6 @@ Inserire i numeri da sommare con il metodo GET :
 <input type="text" name="valore1"  /> <br>
 <p><input type="text" name="valore2"  /> <br>
 <p><input type = submit >
-
 </form>
 
 Inserire i numeri da sommare con il metodo POST :

@@ -32,7 +32,7 @@ public class Servlet extends HttpServlet {
 	String jspParamNameColor = "colore";
 	String jspParamUserId = "id";
 	String nomeMetodoGet = "GET";
-	
+	String nomeMetodoPost = "POST";
 	/**
 	 * qui tu stai dichiarando due variabili a livello di Servlet
 	 * quindi verranno condivise da ogni request gestita dalla servlet
@@ -106,22 +106,23 @@ public class Servlet extends HttpServlet {
 		
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
-		
-		HttpSession session = request.getSession(); //Richiama la sessione corrente o ne crea una se non esiste
+		//Richiama la sessione corrente o ne crea una se non esiste
+		HttpSession session = request.getSession(); 
 		
 		request.setAttribute(jspParamUserId ,session.getId());
 		
 		String a = (String) request.getParameter(reqParamNameVal1);
 		String b = (String) request.getParameter(reqParamNameVal2);
 		
-		ArrayList<Output> risultati = new ArrayList<Output>(4);
+		
 		if (a == null && b == null)	
 		{
 			request.setAttribute(jspParamNameColor, coloreHome);
 		}
 		else
 		{
-		
+			
+			ArrayList<Output> risultati = new ArrayList<Output>(4);
 			int x = 0;
 			int y = 0;
 			
@@ -139,9 +140,8 @@ public class Servlet extends HttpServlet {
 				request.setAttribute(jspParamNameResult, res);
 				
 				String risultato = a+"+"+b+"="+String.valueOf(res);
-				
-				
-				
+				//Se l'arraylist è piena, elimina il primo elemento,
+				//sposta gli altri di un post ed aggiunge il nuovo risultato 
 				if(Output.conta() >= 4)
 				{
 					risultati.remove(0);
@@ -151,23 +151,23 @@ public class Servlet extends HttpServlet {
 					risultati.remove(3);
 
 					risultati.add(new Output(risultato,date,nomeMetodoGet));
-				}
-				
-				
+					request.setAttribute("arraylist", risultati);
+
+				}		
 				else
 				{
 					risultati.add( new Output(risultato,date,"GET"));
 					Output.conta();
+					request.setAttribute("arraylist", risultati);
+
 				}
 			}
 			catch (Exception e)
 			{
 				request.setAttribute(jspParamNameResult, errore);
-			}		
+			}			
 		}
-		
-		request.setAttribute("arraylist", risultati);
-		
+	
 		dispatcher.forward(request, response);
 	}
 
@@ -178,11 +178,22 @@ public class Servlet extends HttpServlet {
 		// TODO Auto-generated method stub
 
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);			
+
+		HttpSession session = request.getSession(); //Richiama la sessione corrente o ne crea una se non esiste
+		
+		request.setAttribute(jspParamUserId ,session.getId());
+	
 		String a = (String) request.getParameter(reqParamNameVal1);
 		String b = (String) request.getParameter(reqParamNameVal2);
 		
+		ArrayList<Output> risultati = new ArrayList<Output>(4);
+		
 		int x = 0;
 		int y = 0;
+		
+		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+		request.setAttribute("data", date);
+		request.setAttribute("metodo", nomeMetodoPost);
 		
 		try  
 		{
@@ -190,15 +201,37 @@ public class Servlet extends HttpServlet {
 			y = Integer.parseInt(b);
 			int res = x + y;
 			request.setAttribute(jspParamNameResult, res);
+			
+			String risultato = a+"+"+b+"="+String.valueOf(res);
+			//Se l'arraylist è piena, elimina il primo elemento,
+			//sposta gli altri di un post ed aggiunge il nuovo risultato 
+			if(Output.conta() >= 4)
+			{
+				risultati.remove(0);
+				risultati.set(0, risultati.get(1));
+				risultati.set(1, risultati.get(2));
+				risultati.set(2, risultati.get(3));
+				risultati.remove(3);
+
+				risultati.add(new Output(risultato,date,nomeMetodoPost));
+				request.setAttribute("arraylist", risultati);
+
+			}		
+			else
+			{
+				risultati.add( new Output(risultato,date,nomeMetodoPost));
+				Output.conta();
+				request.setAttribute("arraylist", risultati);
+
+			}
 		}
 		catch (Exception e)
 		{
 			request.setAttribute(jspParamNameResult, errore);
-		}		
-		
+		}	
+	
 	request.setAttribute(jspParamNameColor, colorePost);
-	
-	
+
 	dispatcher.forward(request, response);
 	
 	}
