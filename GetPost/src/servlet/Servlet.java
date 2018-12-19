@@ -1,6 +1,9 @@
 package servlet;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -8,6 +11,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 
 /**
  * Servlet implementation class Servlet
@@ -25,6 +30,8 @@ public class Servlet extends HttpServlet {
 	String reqParamNameVal2 = "valore2";
 	String jspParamNameResult = "risultato";
 	String jspParamNameColor = "colore";
+	String jspParamUserId = "id";
+	String nomeMetodoGet = "GET";
 	
 	/**
 	 * qui tu stai dichiarando due variabili a livello di Servlet
@@ -96,22 +103,33 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
-		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);		
-		   
+		
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
+		
+		HttpSession session = request.getSession(); //Richiama la sessione corrente o ne crea una se non esiste
+		
+		request.setAttribute(jspParamUserId ,session.getId());
+		
 		String a = (String) request.getParameter(reqParamNameVal1);
 		String b = (String) request.getParameter(reqParamNameVal2);
 		
+		ArrayList<Output> risultati = new ArrayList<Output>(4);
 		if (a == null && b == null)	
 		{
 			request.setAttribute(jspParamNameColor, coloreHome);
 		}
 		else
 		{
-
+		
 			int x = 0;
 			int y = 0;
 			
 			request.setAttribute(jspParamNameColor, coloreGet);
+			
+			String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+			request.setAttribute("data", date);
+			request.setAttribute("metodo", nomeMetodoGet);
 			
 			try  
 			{
@@ -119,12 +137,37 @@ public class Servlet extends HttpServlet {
 				y = Integer.parseInt(b);
 				int res = x + y;
 				request.setAttribute(jspParamNameResult, res);
+				
+				String risultato = a+"+"+b+"="+String.valueOf(res);
+				
+				
+				
+				if(Output.conta() >= 4)
+				{
+					risultati.remove(0);
+					risultati.set(0, risultati.get(1));
+					risultati.set(1, risultati.get(2));
+					risultati.set(2, risultati.get(3));
+					risultati.remove(3);
+
+					risultati.add(new Output(risultato,date,nomeMetodoGet));
+				}
+				
+				
+				else
+				{
+					risultati.add( new Output(risultato,date,"GET"));
+					Output.conta();
+				}
 			}
 			catch (Exception e)
 			{
 				request.setAttribute(jspParamNameResult, errore);
 			}		
 		}
+		
+		request.setAttribute("arraylist", risultati);
+		
 		dispatcher.forward(request, response);
 	}
 
@@ -154,7 +197,8 @@ public class Servlet extends HttpServlet {
 		}		
 		
 	request.setAttribute(jspParamNameColor, colorePost);
-				
+	
+	
 	dispatcher.forward(request, response);
 	
 	}

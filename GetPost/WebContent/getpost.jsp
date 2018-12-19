@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+    
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +13,10 @@
 <body style="background-color:${colore};">
 
 Questa è la pagina GetPost!
+
+<h1>Benvenuto, il tuo id utente è: ${id}</h1>
+
+<h2>La data odierna è :${data} ed hai usato il metodo ${metodo}</h2>
 
 <h1>Il risultato della tua servlet è : " ${risultato} "</h1>
 
@@ -26,6 +32,15 @@ Inserire parametro con il metodo POST :
 <input type = submit>
 </form>
 -->
+
+<c:forEach items = "${arraylist}" var = "list">
+	<tr>
+	<td>${list.ris}</td>
+	<td>${list.dat}</td>
+	<td>${list.met}</td>
+	</tr>
+</c:forEach>
+
 <h2>Il parametro inserito vale: ${param }</h2>
 
 Inserire i numeri da sommare con il metodo GET :
