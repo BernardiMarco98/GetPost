@@ -33,6 +33,10 @@ Inserire parametro con il metodo POST :
 </form>
 -->
 
+<c:if test = "${empty arrayList }">
+	La lista dei risultati è vuota
+</c:if>
+
 <c:if test = "${not empty arraylist }">
 <c:forEach var = "Output" items = "${arraylist}">
 	<c:out value = "${Output.risultato}"></c:out>

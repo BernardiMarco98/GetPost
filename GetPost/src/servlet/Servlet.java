@@ -114,6 +114,9 @@ public class Servlet extends HttpServlet {
 		String a = (String) request.getParameter(reqParamNameVal1);
 		String b = (String) request.getParameter(reqParamNameVal2);
 		
+		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+		request.setAttribute("data", date);
+		request.setAttribute("metodo", nomeMetodoGet);
 		
 		if (a == null && b == null)	
 		{
@@ -128,9 +131,8 @@ public class Servlet extends HttpServlet {
 			
 			request.setAttribute(jspParamNameColor, coloreGet);
 			
-			String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
-			request.setAttribute("data", date);
-			request.setAttribute("metodo", nomeMetodoGet);
+			
+			
 			
 			try  
 			{
@@ -145,7 +147,7 @@ public class Servlet extends HttpServlet {
 				
 				Output out = new Output(risultato,date,nomeMetodoGet);
 				risultati.add(out);
-				Output.conta();
+				Output.conta(); //??
 				request.setAttribute("arraylist", risultati);
 
 				

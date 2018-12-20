@@ -22,4 +22,30 @@ public class Output {
 		
 		return i;
 	}
+
+	public String getRisultato() {
+		return risultato;
+	}
+
+	public void setRisultato(String risultato) {
+		this.risultato = risultato;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
+	}
+
+	public String getMetodo() {
+		return metodo;
+	}
+
+	public void setMetodo(String metodo) {
+		this.metodo = metodo;
+	}
+	
+	
 }
