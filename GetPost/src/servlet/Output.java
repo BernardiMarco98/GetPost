@@ -2,16 +2,16 @@ package servlet;
 
 public class Output {
 	
+	public String risultato;
 	public String data;
 	public String metodo;
-	public String risultato;
+
+	public Output(String risultato, String data, String metodo )
+	{	
+		this.risultato = risultato;
+		this.data = data;
+		this.metodo = metodo;
 	
-	public Output(String ris, String dat, String met )
-	{
-		this.data = dat;
-		this.metodo = met;
-		this.risultato = ris;
-		
 	}
 
 	public static int conta()

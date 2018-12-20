@@ -142,25 +142,13 @@ public class Servlet extends HttpServlet {
 				String risultato = a+"+"+b+"="+String.valueOf(res);
 				//Se l'arraylist è piena, elimina il primo elemento,
 				//sposta gli altri di un post ed aggiunge il nuovo risultato 
-				if(Output.conta() >= 4)
-				{
-					risultati.remove(0);
-					risultati.set(0, risultati.get(1));
-					risultati.set(1, risultati.get(2));
-					risultati.set(2, risultati.get(3));
-					risultati.remove(3);
+				
+				Output out = new Output(risultato,date,nomeMetodoGet);
+				risultati.add(out);
+				Output.conta();
+				request.setAttribute("arraylist", risultati);
 
-					risultati.add(new Output(risultato,date,nomeMetodoGet));
-					request.setAttribute("arraylist", risultati);
-
-				}		
-				else
-				{
-					risultati.add( new Output(risultato,date,"GET"));
-					Output.conta();
-					request.setAttribute("arraylist", risultati);
-
-				}
+				
 			}
 			catch (Exception e)
 			{
@@ -202,7 +190,7 @@ public class Servlet extends HttpServlet {
 			int res = x + y;
 			request.setAttribute(jspParamNameResult, res);
 			
-			String risultato = a+"+"+b+"="+String.valueOf(res);
+			String risultato = a + "+" + b + "=" + String.valueOf(res);
 			//Se l'arraylist è piena, elimina il primo elemento,
 			//sposta gli altri di un post ed aggiunge il nuovo risultato 
 			if(Output.conta() >= 4)
@@ -218,8 +206,9 @@ public class Servlet extends HttpServlet {
 
 			}		
 			else
-			{
-				risultati.add( new Output(risultato,date,nomeMetodoPost));
+			{	
+				Output out = new Output(risultato,date,nomeMetodoPost);
+				risultati.add( out);
 				Output.conta();
 				request.setAttribute("arraylist", risultati);
 
