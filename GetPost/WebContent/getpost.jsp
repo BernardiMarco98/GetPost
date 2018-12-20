@@ -39,7 +39,7 @@ Inserire parametro con il metodo POST :
 
 <c:if test = "${not empty arraylist }">
 <c:forEach var = "Output" items = "${arraylist}">
-	<c:out value = "${Output.risultato}"></c:out>
+	<c:out value = "${Output.risultato}"></c:out> <!-- usa il metodo getRisultato() per ritornare il valore  -->
 	<c:out value = "${Output.data}"></c:out>
 	<c:out value = "${Output.metodo}"></c:out>
 </c:forEach></c:if>

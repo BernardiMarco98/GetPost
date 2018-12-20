@@ -33,6 +33,8 @@ public class Servlet extends HttpServlet {
 	String jspParamUserId = "id";
 	String nomeMetodoGet = "GET";
 	String nomeMetodoPost = "POST";
+	String nomeSessionList = "lista";
+	String nomeSessionContatore = "c";
 	/**
 	 * qui tu stai dichiarando due variabili a livello di Servlet
 	 * quindi verranno condivise da ogni request gestita dalla servlet
@@ -92,7 +94,6 @@ public class Servlet extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Servlet() {
-    	
     	super();
     	// TODO Auto-generated constructor stub
     }
@@ -103,11 +104,18 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
-		
-		
+				
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
+		
 		//Richiama la sessione corrente o ne crea una se non esiste
-		HttpSession session = request.getSession(); 
+		HttpSession session = request.getSession(); //qui creo la sessione
+		
+		ArrayList<Output> risultati = new ArrayList<Output>(4);//qui dichiaro l'arraylist
+		session.setAttribute(nomeSessionList, risultati);//lego l'arraylist alla sessione
+		
+		//creo la sessione 
+		
+		
 		
 		request.setAttribute(jspParamUserId ,session.getId());
 		
@@ -120,12 +128,16 @@ public class Servlet extends HttpServlet {
 		
 		if (a == null && b == null)	
 		{
+			ArrayList<Output> list = new ArrayList<Output>(4);//creo l'arraylist
+			session.setAttribute(nomeSessionList, list);//lo metto nella sessione
+			int c = 0;//inizializzo contatore
+			session.setAttribute(nomeMetodoPost, c);//lo metto nella sessione
 			request.setAttribute(jspParamNameColor, coloreHome);
 		}
 		else
 		{
 			
-			ArrayList<Output> risultati = new ArrayList<Output>(4);
+			session.getAttribute(nomeSessionList);//prendo l'arraylist della sessione
 			int x = 0;
 			int y = 0;
 			
@@ -140,17 +152,28 @@ public class Servlet extends HttpServlet {
 				y = Integer.parseInt(b);
 				int res = x + y;
 				request.setAttribute(jspParamNameResult, res);
-				
+				int i = (int) session.getAttribute(nomeSessionContatore);
 				String risultato = a+"+"+b+"="+String.valueOf(res);
-				//Se l'arraylist è piena, elimina il primo elemento,
-				//sposta gli altri di un post ed aggiunge il nuovo risultato 
-				
-				Output out = new Output(risultato,date,nomeMetodoGet);
-				risultati.add(out);
-				Output.conta(); //??
+				if(i >= 4)//Se l'arraylist è piena, elimina il primo elemento,
+				{	
+					ArrayList<Output> pippo = (ArrayList<Output>) session.getAttribute(nomeSessionList);
+					pippo.remove(0);//sposta gli altri di un post ed aggiunge il nuovo risultato 
+					pippo.add(0, pippo.get(1));
+					pippo.add(1, pippo.get(2));
+					pippo.add(2, pippo.get(3));
+					pippo.add(3, new Output(risultato,date,nomeMetodoGet));
+					session.setAttribute(nomeSessionList, pippo);
+				}
+				else//contatore <=4
+				{
+					ArrayList<Output> pippo = (ArrayList<Output>) session.getAttribute(nomeSessionList);
+					pippo.add(new Output(risultato,date,nomeMetodoGet));//inserisco il risultato dentro l'arraylist
+					session.setAttribute(nomeSessionList, pippo);//rimetto l'arraylist in sessione
+					i++;//e incremento il contatore
+					session.setAttribute(nomeSessionContatore, i);
+				}
 				request.setAttribute("arraylist", risultati);
-
-				
+			
 			}
 			catch (Exception e)
 			{
@@ -167,6 +190,7 @@ public class Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
+		// anche qui sei nella servlet ...
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);			
 
 		HttpSession session = request.getSession(); //Richiama la sessione corrente o ne crea una se non esiste
