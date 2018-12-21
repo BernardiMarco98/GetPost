@@ -104,77 +104,90 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
-				
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
 		
 		//Richiama la sessione corrente o ne crea una se non esiste
-		HttpSession session = request.getSession(); //qui creo la sessione
-		
-		ArrayList<Output> risultati = new ArrayList<Output>(4);//qui dichiaro l'arraylist
-		session.setAttribute(nomeSessionList, risultati);//lego l'arraylist alla sessione
-		
-		//creo la sessione 
-		
-		
-		
+		HttpSession session = request.getSession(); //qui creo la sessione o la ottngo se gia esistente
+
+
 		request.setAttribute(jspParamUserId ,session.getId());
 		
+
 		String a = (String) request.getParameter(reqParamNameVal1);
 		String b = (String) request.getParameter(reqParamNameVal2);
 		
+
 		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+
+
 		request.setAttribute("data", date);
 		request.setAttribute("metodo", nomeMetodoGet);
 		
+		// qui inulla da dire ... (a parte alconi dettagli che non voglio approfondire adesso)
 		if (a == null && b == null)	
 		{
-			ArrayList<Output> list = new ArrayList<Output>(4);//creo l'arraylist
-			session.setAttribute(nomeSessionList, list);//lo metto nella sessione
-			int c = 0;//inizializzo contatore
-			session.setAttribute(nomeMetodoPost, c);//lo metto nella sessione
+
+			//creo l'arraylist
+			ArrayList<Output> list = new ArrayList<Output>(4);
+			
+			//lo metto nella sessione
+			session.setAttribute(nomeSessionList, list);
+			
+			//inizializzo contatore
+			int c = 0;
+			//lo metto nella sessione
+			session.setAttribute(nomeSessionContatore, c);
+
 			request.setAttribute(jspParamNameColor, coloreHome);
 		}
 		else
+		// siamo nel secondo ( o n-esimo giro )
 		{
-			
-			session.getAttribute(nomeSessionList);//prendo l'arraylist della sessione
+			ArrayList<Output> risultati = (ArrayList<Output>) session.getAttribute(nomeSessionList);//prendo l'arraylist della sessione
+
 			int x = 0;
 			int y = 0;
 			
 			request.setAttribute(jspParamNameColor, coloreGet);
-			
-			
-			
-			
+
 			try  
 			{
 				x = Integer.parseInt(a); 
 				y = Integer.parseInt(b);
 				int res = x + y;
 				request.setAttribute(jspParamNameResult, res);
+				
 				int i = (int) session.getAttribute(nomeSessionContatore);
 				String risultato = a+"+"+b+"="+String.valueOf(res);
-				if(i >= 4)//Se l'arraylist è piena, elimina il primo elemento,
+
+				// per adesso saltiamo le considerazioni su questo if .... e sull'else successivo
+				// vediamo cosa succede dentro....
+				if(i >= 4)
 				{	
-					ArrayList<Output> pippo = (ArrayList<Output>) session.getAttribute(nomeSessionList);
-					pippo.remove(0);//sposta gli altri di un post ed aggiunge il nuovo risultato 
-					pippo.add(0, pippo.get(1));
-					pippo.add(1, pippo.get(2));
-					pippo.add(2, pippo.get(3));
-					pippo.add(3, new Output(risultato,date,nomeMetodoGet));
-					session.setAttribute(nomeSessionList, pippo);
+					//Se l'arraylist è piena, elimina il primo elemento,
+					risultati.remove(0); 
+					risultati.add(new Output(risultato,date,nomeMetodoGet));
+					session.setAttribute(nomeSessionList, risultati);
 				}
-				else//contatore <=4
+				//contatore <=4
+				else
 				{
-					ArrayList<Output> pippo = (ArrayList<Output>) session.getAttribute(nomeSessionList);
-					pippo.add(new Output(risultato,date,nomeMetodoGet));//inserisco il risultato dentro l'arraylist
-					session.setAttribute(nomeSessionList, pippo);//rimetto l'arraylist in sessione
-					i++;//e incremento il contatore
+					//inserisco il risultato dentro l'arraylist
+					risultati.add(new Output(risultato,date,nomeMetodoGet));
+
+					//rimetto l'arraylist in sessione
+					session.setAttribute(nomeSessionList, risultati);
+					
+					//e incremento il contatore
+					i++;
+					//rimetto il contatore in sessione
 					session.setAttribute(nomeSessionContatore, i);
 				}
+				
 				request.setAttribute("arraylist", risultati);
-			
 			}
+				
+			
 			catch (Exception e)
 			{
 				request.setAttribute(jspParamNameResult, errore);
@@ -183,7 +196,6 @@ public class Servlet extends HttpServlet {
 	
 		dispatcher.forward(request, response);
 	}
-
 	/**
 	* @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	*/
