@@ -14,14 +14,6 @@ public class Output {
 	
 	}
 
-	public static int conta()
-	{
-		int i=0;
-		
-		i++;
-		
-		return i;
-	}
 
 	public String getRisultato() {
 		return risultato;

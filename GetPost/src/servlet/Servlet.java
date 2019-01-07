@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	String errore = "ERRORE! impossibile eseguire la somma";
+	String errore = "errore";
 	String nomejsp = "getpost.jsp";
 	String coloreHome = "white";
 	String coloreGet = "yellow";
@@ -34,7 +34,6 @@ public class Servlet extends HttpServlet {
 	String nomeMetodoGet = "GET";
 	String nomeMetodoPost = "POST";
 	String nomeSessionList = "lista";
-	String nomeSessionContatore = "c";
 	/**
 	 * qui tu stai dichiarando due variabili a livello di Servlet
 	 * quindi verranno condivise da ogni request gestita dalla servlet
@@ -107,7 +106,17 @@ public class Servlet extends HttpServlet {
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
 		
 		//Richiama la sessione corrente o ne crea una se non esiste
-		HttpSession session = request.getSession(); //qui creo la sessione o la ottngo se gia esistente
+		HttpSession session = request.getSession(); //qui creo la sessione o la ottengo se gia esistente
+
+		//controllo se è il primo accesso alla sessione e se vero creo l'array altrimenti non faccio neiente perchè l'array è già 			//stato creato
+		if(session.isNew() == true)
+		{
+			//creo l'arraylist
+			ArrayList<Output> list = new ArrayList<Output>(4);
+
+			//lo metto nella sessione
+			session.setAttribute(nomeSessionList, list);
+		}
 
 
 		request.setAttribute(jspParamUserId ,session.getId());
@@ -126,18 +135,6 @@ public class Servlet extends HttpServlet {
 		// qui inulla da dire ... (a parte alconi dettagli che non voglio approfondire adesso)
 		if (a == null && b == null)	
 		{
-
-			//creo l'arraylist
-			ArrayList<Output> list = new ArrayList<Output>(4);
-			
-			//lo metto nella sessione
-			session.setAttribute(nomeSessionList, list);
-			
-			//inizializzo contatore
-			int c = 0;
-			//lo metto nella sessione
-			session.setAttribute(nomeSessionContatore, c);
-
 			request.setAttribute(jspParamNameColor, coloreHome);
 		}
 		else
@@ -157,19 +154,53 @@ public class Servlet extends HttpServlet {
 				int res = x + y;
 				request.setAttribute(jspParamNameResult, res);
 				
-				int i = (int) session.getAttribute(nomeSessionContatore);
+				//int i = risultati.size(); //inserisco dentro una variabile locale la dimensione dell'arraylist
 				String risultato = a+"+"+b+"="+String.valueOf(res);
 
 				// per adesso saltiamo le considerazioni su questo if .... e sull'else successivo
 				// vediamo cosa succede dentro....
-				if(i >= 4)
+				if(session.isNew() != true)
+				{
+					if(risultati.size() == 4)//Se l'arraylist Ã¨ piena, elimina il primo elemento,
+					{	
+						risultati.remove(0); 
+						risultati.add(new Output(risultato,date,nomeMetodoGet));
+						session.setAttribute(nomeSessionList, risultati);
+					
+					}
+				//dimensione lista <=4
+					else
+					{
+					//inserisco il risultato dentro l'arraylist
+					risultati.add(new Output(risultato,date,nomeMetodoGet));
+
+					//rimetto l'arraylist in sessione
+					session.setAttribute(nomeSessionList, risultati);
+					
+					}
+				}
+				else 
+				{
+					risultati.add(new Output(risultato,date,nomeMetodoGet));
+					session.setAttribute(nomeSessionList, risultati);
+				}
+				request.setAttribute("arraylist", risultati);
+			}
+			catch (NumberFormatException e)
+			{
+				request.setAttribute(jspParamNameResult, errore);
+
+                //int i = risultati.size(); //inserisco dentro una variabile locale la dimensione dell'arraylist
+				String risultato = a+"+"+b+"="+errore;
+
+                if(risultati.size() == 4)
 				{	
-					//Se l'arraylist è piena, elimina il primo elemento,
+					//Se l'arraylist Ã¨ piena, elimina il primo elemento,
 					risultati.remove(0); 
 					risultati.add(new Output(risultato,date,nomeMetodoGet));
 					session.setAttribute(nomeSessionList, risultati);
 				}
-				//contatore <=4
+				//dimensione lista <=4
 				else
 				{
 					//inserisco il risultato dentro l'arraylist
@@ -178,19 +209,10 @@ public class Servlet extends HttpServlet {
 					//rimetto l'arraylist in sessione
 					session.setAttribute(nomeSessionList, risultati);
 					
-					//e incremento il contatore
-					i++;
-					//rimetto il contatore in sessione
-					session.setAttribute(nomeSessionContatore, i);
 				}
 				
 				request.setAttribute("arraylist", risultati);
-			}
-				
-			
-			catch (Exception e)
-			{
-				request.setAttribute(jspParamNameResult, errore);
+
 			}			
 		}
 	
@@ -202,64 +224,112 @@ public class Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
-		// anche qui sei nella servlet ...
-		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);			
-
-		HttpSession session = request.getSession(); //Richiama la sessione corrente o ne crea una se non esiste
+	RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
 		
+		//Richiama la sessione corrente o ne crea una se non esiste
+		HttpSession session = request.getSession(); //qui creo la sessione o la ottengo se gia esistente
+
+		//controllo se è il primo accesso alla sessione e se vero creo l'array altrimenti non faccio neiente perchè l'array è già stato creato
+		if(session.isNew() == true)
+		{
+			//creo l'arraylist
+			ArrayList<Output> list = new ArrayList<Output>(4);
+
+			//lo metto nella sessione
+			session.setAttribute(nomeSessionList, list);
+		}
+
+
 		request.setAttribute(jspParamUserId ,session.getId());
-	
+		
+
 		String a = (String) request.getParameter(reqParamNameVal1);
 		String b = (String) request.getParameter(reqParamNameVal2);
 		
-		ArrayList<Output> risultati = new ArrayList<Output>(4);
-		
-		int x = 0;
-		int y = 0;
-		
+
 		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+
+
 		request.setAttribute("data", date);
 		request.setAttribute("metodo", nomeMetodoPost);
 		
-		try  
-		{
-			x = Integer.parseInt(a); 
-			y = Integer.parseInt(b);
-			int res = x + y;
-			request.setAttribute(jspParamNameResult, res);
+
+			ArrayList<Output> risultati = (ArrayList<Output>) session.getAttribute(nomeSessionList);//prendo l'arraylist della sessione
+
+			int x = 0;
+			int y = 0;
 			
-			String risultato = a + "+" + b + "=" + String.valueOf(res);
-			//Se l'arraylist è piena, elimina il primo elemento,
-			//sposta gli altri di un post ed aggiunge il nuovo risultato 
-			if(Output.conta() >= 4)
+			request.setAttribute(jspParamNameColor, colorePost);
+
+			try  
 			{
-				risultati.remove(0);
-				risultati.set(0, risultati.get(1));
-				risultati.set(1, risultati.get(2));
-				risultati.set(2, risultati.get(3));
-				risultati.remove(3);
+				x = Integer.parseInt(a); 
+				y = Integer.parseInt(b);
+				int res = x + y;
+				request.setAttribute(jspParamNameResult, res);
+				
+				//int i = risultati.size(); //inserisco dentro una variabile locale la dimensione dell'arraylist
+				String risultato = a+"+"+b+"="+String.valueOf(res);
 
-				risultati.add(new Output(risultato,date,nomeMetodoPost));
+				// per adesso saltiamo le considerazioni su questo if .... e sull'else successivo
+				// vediamo cosa succede dentro....
+				if(session.isNew() != true)
+				{
+					if(risultati.size() == 4)//Se l'arraylist Ã¨ piena, elimina il primo elemento,
+					{	
+						risultati.remove(0); 
+						risultati.add(new Output(risultato,date,nomeMetodoPost));
+						session.setAttribute(nomeSessionList, risultati);
+					
+					}
+				//dimensione lista <=4
+					else
+					{
+					//inserisco il risultato dentro l'arraylist
+					risultati.add(new Output(risultato,date,nomeMetodoPost));
+
+					//rimetto l'arraylist in sessione
+					session.setAttribute(nomeSessionList, risultati);
+					
+					}
+				}
+				else 
+				{
+					risultati.add(new Output(risultato,date,nomeMetodoPost));
+					session.setAttribute(nomeSessionList, risultati);
+				}
 				request.setAttribute("arraylist", risultati);
-
-			}		
-			else
-			{	
-				Output out = new Output(risultato,date,nomeMetodoPost);
-				risultati.add( out);
-				Output.conta();
-				request.setAttribute("arraylist", risultati);
-
 			}
-		}
-		catch (Exception e)
-		{
-			request.setAttribute(jspParamNameResult, errore);
-		}	
-	
-	request.setAttribute(jspParamNameColor, colorePost);
+			catch (NumberFormatException e)
+			{
+				request.setAttribute(jspParamNameResult, errore);
+
+                //int i = risultati.size(); //inserisco dentro una variabile locale la dimensione dell'arraylist
+				String risultato = a+"+"+b+"="+errore;
+
+                if(risultati.size() == 4)
+				{	
+					//Se l'arraylist Ã¨ piena, elimina il primo elemento,
+					risultati.remove(0); 
+					risultati.add(new Output(risultato,date,nomeMetodoPost));
+					session.setAttribute(nomeSessionList, risultati);
+				}
+				//dimensione lista <=4
+				else
+				{
+					//inserisco il risultato dentro l'arraylist
+					risultati.add(new Output(risultato,date,nomeMetodoPost));
+
+					//rimetto l'arraylist in sessione
+					session.setAttribute(nomeSessionList, risultati);
+					
+				}
+				
+				request.setAttribute("arraylist", risultati);
+
+			}			
+		
 
 	dispatcher.forward(request, response);
-	
 	}
 }
