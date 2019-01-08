@@ -159,7 +159,7 @@ public class Servlet extends HttpServlet {
 
 				// per adesso saltiamo le considerazioni su questo if .... e sull'else successivo
 				// vediamo cosa succede dentro....
-				if(session.isNew() != true)
+				if(session.isNew() != true)//se la sessione non è nuova 
 				{
 					if(risultati.size() == 4)//Se l'arraylist Ã¨ piena, elimina il primo elemento,
 					{	

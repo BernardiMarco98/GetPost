@@ -6,7 +6,7 @@ public class Output {
 	public String data;
 	public String metodo;
 
-	public Output(String risultato, String data, String metodo )
+	public Output(String risultato, String data, String metodo ) //costruttore
 	{	
 		this.risultato = risultato;
 		this.data = data;
