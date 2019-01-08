@@ -1,0 +1,47 @@
+1) committa quello che c'e' adesso
+
+2) aggiungi la gestione delle somme con errori
+
+3) togli l'uso del contatore
+
+4) la metodologia che usi per inizializzare e mettere in sessione
+ l'array list al primo giro funziona, ma non la farei in questo modo.
+trova il modo di cambiare quasta cosa togliendo da dentro
+		if (a == null && b == null)	
+		{
+
+ArrayList<Output> list = new ArrayList<Output>(4);
+
+e spostandolo in un altro punto piu' corretto
+( a te capire dove e come ) 
+
+Come suggerimento posso dirti che , ancora una volta i metodi di HttpSession ti verrebbero in aiuto per questo 
+
+5) scope e modificatori in JAva .. guarda che come ti avevo detto questo e' IMPORTANTISSIMO e 
+
+6) studiare la documentazione di jsp e di jstl
+
+Ok ... ?
+
+si, una cosa... posso committare questo txt nel repo e lavorare col mio computer?
+Certo... aagiungi una cartella docs a livello di progetto (dentro la cartella GetPost) e mettici tutto quanto ti puo essere utile
+
+... per quanto riguarda il punto 4 .... domande ?
+
+il blocco if.. va bene per controllare il primo accesso ma devo inizializzare l'arraylist da un'altra parte giusto?
+
+ si ... l'istruzione new ArrayList<Output>(4) NON deve essere nell'if
+ma c'e' una altro punto in cui puo'/deve essere
+
+ok ?
+
+ok
+
+perfetto !!! .. dai .. fai buone vacanze e ... studia !!!!
+(inventati anche altri esercizi ..... stupiscimi !!!! :-)
+
+va bene ^^
+
+passa delle buone feste e grazie :)
+
+Ciao
