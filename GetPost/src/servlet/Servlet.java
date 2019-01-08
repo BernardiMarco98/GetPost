@@ -132,7 +132,6 @@ public class Servlet extends HttpServlet {
 		request.setAttribute("data", date);
 		request.setAttribute("metodo", nomeMetodoGet);
 		
-		// qui inulla da dire ... (a parte alconi dettagli che non voglio approfondire adesso)
 		if (a == null && b == null)	
 		{
 			request.setAttribute(jspParamNameColor, coloreHome);
@@ -146,74 +145,38 @@ public class Servlet extends HttpServlet {
 			int y = 0;
 			
 			request.setAttribute(jspParamNameColor, coloreGet);
+			String risultato = a+"+"+b+"=";
+
 
 			try  
 			{
 				x = Integer.parseInt(a); 
 				y = Integer.parseInt(b);
+				
 				int res = x + y;
+
+				risultato = risultato + res;
 				request.setAttribute(jspParamNameResult, res);
 				
-				//int i = risultati.size(); //inserisco dentro una variabile locale la dimensione dell'arraylist
-				String risultato = a+"+"+b+"="+String.valueOf(res);
-
-				// per adesso saltiamo le considerazioni su questo if .... e sull'else successivo
-				// vediamo cosa succede dentro....
-				if(session.isNew() != true)//se la sessione non è nuova 
-				{
-					if(risultati.size() == 4)//Se l'arraylist Ã¨ piena, elimina il primo elemento,
-					{	
-						risultati.remove(0); 
-						risultati.add(new Output(risultato,date,nomeMetodoGet));
-						session.setAttribute(nomeSessionList, risultati);
-					
-					}
-					//dimensione lista <=4
-					else
-					{
-					//inserisco il risultato dentro l'arraylist
-					risultati.add(new Output(risultato,date,nomeMetodoGet));
-
-					//rimetto l'arraylist in sessione
-					session.setAttribute(nomeSessionList, risultati);
-					
-					}
-				}
-				else 
-				{
-					risultati.add(new Output(risultato,date,nomeMetodoGet));
-					session.setAttribute(nomeSessionList, risultati);
-				}
-				request.setAttribute("arraylist", risultati);
 			}
 			catch (NumberFormatException e)
 			{
+				risultato = risultato + errore;				
 				request.setAttribute(jspParamNameResult, errore);
-
-                //int i = risultati.size(); //inserisco dentro una variabile locale la dimensione dell'arraylist
-				String risultato = a+"+"+b+"="+errore;
-
-                if(risultati.size() == 4)
-				{	
-					//Se l'arraylist Ã¨ piena, elimina il primo elemento,
-					risultati.remove(0); 
-					risultati.add(new Output(risultato,date,nomeMetodoGet));
-					session.setAttribute(nomeSessionList, risultati);
-				}
-				//dimensione lista <=4
-				else
-				{
-					//inserisco il risultato dentro l'arraylist
-					risultati.add(new Output(risultato,date,nomeMetodoGet));
-
-					//rimetto l'arraylist in sessione
-					session.setAttribute(nomeSessionList, risultati);
-					
-				}
-				
-				request.setAttribute("arraylist", risultati);
-
+       
+			}
+			
+			if(session.isNew() != true && risultati.size() == 4)//se la sessione non è nuova e
+                //l'arraylist Ã¨ piena, elimina il primo elemento, 
+			{
+				risultati.remove(0); 
 			}			
+				
+			risultati.add(new Output(risultato,date,nomeMetodoGet));
+			
+			session.setAttribute(nomeSessionList, risultati);
+			
+			request.setAttribute("arraylist", risultati);
 		}
 	
 		dispatcher.forward(request, response);
