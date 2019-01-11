@@ -1,0 +1,280 @@
+Test Compito 
+
+"I SEGUENTI TEST VERANNO EFFETTUATI CONTEMPORANEAMENTE SU DUE BROWSER DIFFERENTI" 
+
+TEST PRIMO ACCESSO (Firefox)– 1:
+•	Comportamento atteso: colore sfondo bianco, risultato vuoto e id sessione = CBA0B29FEB4311C8F3278E09DC3B72E2
+
+TEST PRIMO ACCESSO (Chrome)– 1:
+•	Comportamento atteso: colore sfondo bianco, risultato vuoto e id sessione = 91A444C9EFE46E3B19E73D322734F821
+
+
+
+TEST CON VALORE VALIDO (Firefox) – 1:
+•	Valori da scrivere nella form GET: valore1 10, valore2 20
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:31:10, GET, 30, CBA0B29FEB4311C8F3278E09DC3B72E2
+
+TEST CON VALORE VALIDO (Chrome) – 1:
+•	Valori da scrivere nella form GET: valore1 10, valore2 20
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:31:30, GET, 30, 91A444C9EFE46E3B19E73D322734F821
+
+TEST CON VALORE VALIDO (Firefox) – 2:
+•	Valori da scrivere nella form POST: valore1 30, valore2 40
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:32:10, POST, 70, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somma precedente: 
+10+20=30, 13/12/2018 10:31:10 GET
+
+TEST CON VALORE VALIDO (Chrome) – 2:
+•	Valori da scrivere nella form POST: valore1 30, valore2 40
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:32:30, POST, 70, 91A444C9EFE46E3B19E73D322734F821,
+somma precedente: 
+10+20=30, 13/12/2018 10:31:10 GET
+
+TEST CON VALORE NON VALIDO (Firefox) – 3:
+•	Valori da scrivere nella form POST: valore1 pippo, valore2 20
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:33:10, POST, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
+
+TEST CON VALORE NON VALIDO (Chrome) – 3:
+•	Valori da scrivere nella form POST: valore1 pippo, valore2 20
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:33:30, POST, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
+
+TEST CON VALORE NON VALIDO (Firefox) – 4:
+•	Valori da scrivere nella form GET: valore1 10, valore2 pippo
+•	Comportamento atteso: colore sfondo giallo,13/12/2018 10:34:10, GET,errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
+
+TEST CON VALORE NON VALIDO (Chrome) – 4:
+•	Valori da scrivere nella form GET: valore1 10, valore2 pippo
+•	Comportamento atteso: colore sfondo giallo,13/12/2018 10:34:30, GET,errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
+
+TEST CON VALORE NON VALIDO (Firefox) – 5:
+•	Valori da scrivere nella form GET: valore1 pippo, valore2 10
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:35:10, GET,errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
+
+TEST CON VALORE NON VALIDO (Chrome) – 5:
+•	Valori da scrivere nella form GET: valore1 pippo, valore2 10
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:35:30, GET,errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+10+20=30, 13/12/2018 10:31:10 GET
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
+
+TEST CON VALORE NON VALIDO (Firefox) – 6:
+•	Valori da scrivere nella form POST: valore1 20, valore2 pippo
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:36:10, POST, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
+
+TEST CON VALORE NON VALIDO (Chrome) – 6:
+•	Valori da scrivere nella form POST: valore1 20, valore2 pippo
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:36:30, POST, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+30+40=70, 13/12/2018 10:32:10 POST
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
+
+TEST CON VALORE NON VALIDO (Firefox) – 7:
+•	Valori da scrivere nella form POST: valore1 pippo, valore2 
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:37:10, POST, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
+
+TEST CON VALORE NON VALIDO (Chrome) – 7:
+•	Valori da scrivere nella form POST: valore1 pippo, valore2 
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:37:30, POST, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+pippo+20=errore, 13/12/2018 10:33:10 POST
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
+
+TEST CON VALORE NON VALIDO (Firefox) – 8:
+•	Valori da scrivere nella form GET: valore1 pippo, valore2 
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:38:10, GET, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+
+TEST CON VALORE NON VALIDO (Chrome) – 8:
+•	Valori da scrivere nella form GET: valore1 pippo, valore2 
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:38:30, GET, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+10+pippo=errore, 13/12/2018 10:34:10 GET
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+
+TEST CON VALORE NON VALIDO (Firefox) – 9:
+•	Valori da scrivere nella form GET: valore1 , valore2 pippo
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:39:10, GET, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti:
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+pippo+	=errore, 13/12/2018 10:38:10 GET
+
+TEST CON VALORE NON VALIDO (Chrome) – 9:
+•	Valori da scrivere nella form GET: valore1 , valore2 pippo
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:39:30, GET, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti:
+pippo+10=errore, 13/12/2018 10:35:10 GET
+20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+pippo+	=errore, 13/12/2018 10:38:10 GET
+
+TEST CON VALORE NON VALIDO (Firefox) – 10:
+•	Valori da scrivere nella form POST: valore1 , valore2 pippo
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:40:10, POST, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+pippo+	=errore, 13/12/2018 10:38:10 GET
+  +pippo=errore, 13/12/2018 10:39:10 GET
+	
+TEST CON VALORE NON VALIDO (Chrome) – 10:
+•	Valori da scrivere nella form POST: valore1 , valore2 pippo
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:40:30, POST, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+20+pippo=errore, 13/12/2018 10:36:10 POST
+pippo+	=errore, 13/12/2018 10:37:10 POST
+pippo+	=errore, 13/12/2018 10:38:10 GET
+  +pippo=errore, 13/12/2018 10:39:10 GET
+
+
+TEST CON VALORE NON VALIDO (Firefox) – 11:
+•	Valori da scrivere nella form GET: valore1 10, valore2 
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:41:10, GET, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+pippo+ =errore, 13/12/2018 10:37:10 POST
+pippo+ =errore, 13/12/2018 10:38:10 GET 	
+ +pippo=errore, 13/12/2018 10:39:10 GET
+ +pippo=errore, 13/12/2018 10:40:10 POST
+	
+TEST CON VALORE NON VALIDO (Chrome) – 11:
+•	Valori da scrivere nella form GET: valore1 10, valore2 
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:41:30, GET, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+pippo+	=errore, 13/12/2018 10:37:10 POST
+pippo+	=errore, 13/12/2018 10:38:10 GET 	
+  +pippo=errore, 13/12/2018 10:39:10 GET
+  +pippo=errore, 13/12/2018 10:40:10 POST
+
+TEST CON VALORE NON VALIDO (Firefox) – 12:
+•	Valori da scrivere nella form POST: valore1 20, valore2 
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:42:10, POST, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 
+pippo+	=errore, 13/12/2018 10:38:10 GET 
+  +pippo=errore, 13/12/2018 10:39:10 GET
+  +pippo=errore, 13/12/2018 10:40:10 POST
+10+	=errore, 13/12/2018 10:41:10 GET
+
+TEST CON VALORE NON VALIDO (Chrome) – 12:
+•	Valori da scrivere nella form POST: valore1 20, valore2 
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:42:30, POST, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 
+pippo+	=errore, 13/12/2018 10:38:10 GET 
+  +pippo=errore, 13/12/2018 10:39:10 GET
+  +pippo=errore, 13/12/2018 10:40:10 POST
+10+	=errore, 13/12/2018 10:41:10 GET
+
+TEST CON VALORE NON VALIDO (Firefox) – 13:
+•	Valori da scrivere nella form GET: valore1 , valore2 10
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:43:10, GET, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti:
+  +pippo=errore, 13/12/2018 10:39:10 GET
+  +pippo=errore, 13/12/2018 10:40:10 POST
+10+	=errore, 13/12/2018 10:41:10 GET	
+20+	=errore, 13/12/2018 10:42:10 POST
+
+TEST CON VALORE NON VALIDO (Chrome) – 13:
+•	Valori da scrivere nella form GET: valore1 , valore2 10
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:43:30, GET, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti:
+ +pippo=errore, 13/12/2018 10:39:10 GET
+ +pippo=errore, 13/12/2018 10:40:10 POST
+10+    =errore, 13/12/2018 10:41:10 GET	
+20+    =errore, 13/12/2018 10:42:10 POST
+
+TEST CON VALORE NON VALIDO (Firefox) – 14:
+•	Valori da scrivere nella form POST: valore1 , valore2 20
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:44:10, POST, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti: 	
+ +pippo=errore, 13/12/2018 10:40:10 POST
+10+    =errore, 13/12/2018 10:41:10 GET	
+20+    =errore, 13/12/2018 10:42:10 POST
+    +10=errore, 13/12/2018 10:43:10 GET
+	
+TEST CON VALORE NON VALIDO (Chrome) – 14:
+•	Valori da scrivere nella form POST: valore1 , valore2 20
+•	Comportamento atteso: colore sfondo rosso, 13/12/2018 10:44:30, POST, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti: 	
+ +pippo=errore, 13/12/2018 10:40:10 POST
+10+    =errore, 13/12/2018 10:41:10 GET	
+20+    =errore, 13/12/2018 10:42:10 POST
+    +10=errore,  13/12/2018 10:43:10 GET
+
+TEST CON VALORE NON VALIDO (Firefox) – 15:
+•	Valori da scrivere nella form GET: valore1 , valore2 
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:45:10, GET, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti:
+10+    =errore, 13/12/2018 10:41:10 GET	
+20+    =errore, 13/12/2018 10:42:10 POST
+    +10=errore, 13/12/2018 10:43:10 GET 
+    +20=errore, 13/12/2018 10:44:10 POST
+	
+TEST CON VALORE NON VALIDO (Chrome) – 15:
+•	Valori da scrivere nella form GET: valore1 , valore2 
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:45:30, GET, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti:
+10+	=errore, 13/12/2018 10:41:10 GET	
+20+	=errore, 13/12/2018 10:42:10 POST
+     +10=errore, 13/12/2018 10:43:10 GET 
+     +20=errore, 13/12/2018 10:44:10 POST
+
+TEST CON VALORE NON VALIDO (Firefox) – 16:
+•	Valori da scrivere nella form POST: valore1 , valore2 
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:46:10, POST, errore, CBA0B29FEB4311C8F3278E09DC3B72E2,
+somme precedenti:	
+20+	=errore, 13/12/2018 10:42:10 POST
+     +10=errore, 13/12/2018 10:43:10 GET 
+     +20=errore, 13/12/2018 10:44:10 POST
+   +    =errore, 13/12/2018 10:45:10 GET 
+	
+TEST CON VALORE NON VALIDO (Chrome) – 16:
+•	Valori da scrivere nella form POST: valore1 , valore2 
+•	Comportamento atteso: colore sfondo giallo, 13/12/2018 10:46:30, POST, errore, 91A444C9EFE46E3B19E73D322734F821,
+somme precedenti:	
+20+	=errore, 13/12/2018 10:42:10 POST
+     +10=errore, 13/12/2018 10:43:10 GET 
+     +20=errore, 13/12/2018 10:44:10 POST
+    +   =errore, 13/12/2018 10:45:10 GET 
+
+NB: “Dopo quattro operazioni, la meno recente viene eliminata e viene visualizzata la quinta operazione”
