@@ -102,7 +102,6 @@ public class Servlet extends HttpServlet {
 	 * @throws ServletException 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	*/
-    
     protected void operazioni(String coloreMetodo, String nomeMetodo, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
     	RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
