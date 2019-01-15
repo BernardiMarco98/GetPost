@@ -94,16 +94,17 @@ public class Servlet extends HttpServlet {
      */
     public Servlet() {
     	super();
+    	
     	// TODO Auto-generated constructor stub
     }
-
-	/**
+    /**
 	* @throws IOException 
 	 * @throws ServletException 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	*/
     protected void operazioni(String coloreMetodo, String nomeMetodo, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
+    
     	RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
 		
 		//Richiama la sessione corrente o ne crea una se non esiste
@@ -120,6 +121,7 @@ public class Servlet extends HttpServlet {
 		}
 		request.setAttribute(jspParamUserId ,session.getId());
 
+		//inserisco i parametri del form in variabili
 		String a = (String) request.getParameter(reqParamNameVal1);
 		String b = (String) request.getParameter(reqParamNameVal2);
 		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
@@ -127,21 +129,24 @@ public class Servlet extends HttpServlet {
 		request.setAttribute("data", date);
 		request.setAttribute("metodo", nomeMetodo);
 		
+		//al primo giro setto lo sfondo della pagina bianco
 		if (a == null && b == null)	
 		{
 			request.setAttribute(jspParamNameColor, coloreHome);
 		}
 		else
 		// siamo nel secondo ( o n-esimo giro )
-		{
-			ArrayList<Output> risultati = (ArrayList<Output>) session.getAttribute(nomeSessionList);//prendo l'arraylist della sessione
+		{	
+			//prendo l'arraylist della sessione
+			ArrayList<Output> risultati = (ArrayList<Output>) session.getAttribute(nomeSessionList);
 
 			int x = 0;
 			int y = 0;
 			
 			request.setAttribute(jspParamNameColor, coloreMetodo);
 			String risultato = a+"+"+b+"=";
-
+			
+			//in questo blocco eseguo la somma castando le stringhe passate nel form
 			try  
 			{
 				x = Integer.parseInt(a); 
@@ -153,18 +158,20 @@ public class Servlet extends HttpServlet {
 				request.setAttribute(jspParamNameResult, res);		
 			}
 			catch (NumberFormatException e)
-			{
+			{	
+				// se le stringhe non possono essere castate in interi,il risultato sarà un errore
 				risultato = risultato + errore;				
 				request.setAttribute(jspParamNameResult, errore);
        
 			}
 			
-			if(session.isNew() != true && risultati.size() == 4)//se la sessione non è nuova e
+			if(session.isNew() != true && risultati.size() == 4)
+				//se la sessione non è nuova e
                 //l'arraylist Ã¨ piena, elimina il primo elemento, 
 			{
 				risultati.remove(0); 
 			}			
-				
+			//aggiungo l'oggetto all' arraylist	
 			risultati.add(new Output(risultato,date,nomeMetodo));
 			
 			session.setAttribute(nomeSessionList, risultati);
@@ -178,7 +185,7 @@ public class Servlet extends HttpServlet {
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-
+		
 		operazioni(coloreGet,nomeMetodoGet, request, response);
 	}
 	/**

@@ -12,7 +12,7 @@
 <h2>Inserisci i tuoi dati per accedere</h2>
 		<form method="post" action="Login">
         	Username:<br><input type="text" name="username" /><br/>
-        	<p>Password:<br><input type="text" name="password" /><br/>
+        	<p>Password:<br><input type="password" name="password" /><br/>
         <p><input type="submit" value="login" />
         </form>
 </body>

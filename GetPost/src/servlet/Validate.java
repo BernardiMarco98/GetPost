@@ -1,23 +1,27 @@
 package servlet;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class Validate
  {
-     public static boolean checkUser(String username,String password) 
+	 //Metodo che esegue una query con i parametri passati, 
+	 //se presenti nel database ritorna true, altrimenti false
+     public static boolean checkUser(String username,String password, Connection con) 
      {
+
       boolean st =false;
-      try
-      {
-    	 Class.forName("org.postgresql.Driver");
-         Connection con=DriverManager.getConnection("jdbc:postgresql:/ /localhost:5432/getpost","postgres","postgre");
-         PreparedStatement ps =con.prepareStatement("select * from utente where username=? and password=?");
+      try{
+
+         PreparedStatement ps =con.prepareStatement ("select username,password from utente where username=? and password=?");
          ps.setString(1, username);
          ps.setString(2, password);
+         System.out.println("executing checkUser with usr ("+username+") pwd ("+password+")");
          ResultSet rs =ps.executeQuery();
          st = rs.next();
-      }
-      catch(Exception e)
+        
+      }catch(Exception e)
       {
           e.printStackTrace();
       }
