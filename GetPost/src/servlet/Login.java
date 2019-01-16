@@ -3,6 +3,8 @@ package servlet;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.servlet.*;
@@ -47,7 +49,28 @@ public class Login extends HttpServlet {
 	        //se corretti,reinderizzo l'URL "Servlet" 
 	        if(Validate.checkUser(username, password,con))
 	        {
+	        	HttpSession session = request.getSession();
+	        	
+	        	//mettere dentro utente i dati della riga della tabella
+	        	PreparedStatement ps;
+				try {
+					ps = con.prepareStatement ("select * from utente where username="+username);
+					ResultSet rs = ps.executeQuery();
+					Utente utente = new Utente();
+					utente.setUsername(rs.getString("username"));
+					utente.setPassword(rs.getString("password"));
+					utente.setNome(rs.getString("nome"));
+					utente.setCognome(rs.getString("cognome"));
+					utente.setId_utente(rs.getInt("id_utente"));
+					session.setAttribute("utente", utente);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	
+	            
 	            response.sendRedirect("Servlet");
+	        	
 	        	
 	        }
 	        else

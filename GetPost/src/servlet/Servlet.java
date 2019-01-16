@@ -1,11 +1,17 @@
 package servlet;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,12 +20,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 
+import java.sql.DriverManager;
+
+
 /**
  * Servlet implementation class Servlet
  */
 @WebServlet("/Servlet")
 public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	public Connection con;
 	
 	String errore = "errore";
 	String nomejsp = "getpost.jsp";
@@ -102,25 +113,82 @@ public class Servlet extends HttpServlet {
 	 * @throws ServletException 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	*/
-    protected void operazioni(String coloreMetodo, String nomeMetodo, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    public void init(ServletConfig config)throws ServletException
+    {
+    	try 
+    	{
+			Class.forName("org.postgresql.Driver");
+			con=DriverManager.getConnection ("jdbc:postgresql://localhost:5432/getpost","postgres","postgre");
+	    	System.out.println("Connessione in corso...");
+		} 
+    	catch (ClassNotFoundException | SQLException e) 
+    	{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+    }
+    
+    public void queryResult(HttpServletRequest request, HttpServletResponse  response) throws ServletException, IOException, SQLException 
+    {
+    	ArrayList<Risultati> risultati = new ArrayList<Risultati>();
+    	PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        HttpSession sessione = request.getSession();
+    	Utente datiUtente = (Utente) sessione.getAttribute("utente");
+    	String utente = datiUtente.getUsername();
+        String query = "select add1, add2, risultato, data, metodo from risultati where id_utente="+ utente +" order by value";
+        
+        statement = con.prepareStatement(query);           
+        resultSet = statement.executeQuery();
+        
+        while (resultSet.next()) 
+        {
+            Risultati user = new Risultati();
+            user.setAdd1(resultSet.getString("add1"));
+            user.setAdd2(resultSet.getString("add2"));
+            user.setRisultato(resultSet.getString("risultato"));
+            user.setData(resultSet.getString("data"));
+            user.setMetodo(resultSet.getString("metodo"));
+            risultati.add(user);
+        }
+        request.setAttribute("arraylist", risultati);
+        System.out.println(risultati);
+   	
+    }
+    
+    public void insert(String nomeMetodo,String a, String b, String res, String date, String session, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException
+    {	
+    	HttpSession sessione = request.getSession();
+    	Utente datiUtente = (Utente) sessione.getAttribute("utente");
+    	String utente = datiUtente.getUsername();
+    	Integer id_utente = datiUtente.getId_utente();
+    	request.setAttribute("username", utente);
+    	System.out.println(utente);
+	
+		PreparedStatement ps=con.prepareStatement("INSERT INTO risultati(metodo, add1, add2, risultato, data, sessione, id_utente ) VALUES(?, ?, ?, ?, ?, ?, ?)");   
+
+		ps.setString(1, nomeMetodo);
+		ps.setString(2, a);
+		ps.setString(3, b);
+		ps.setString(4, res);
+		ps.setString(5, date);
+		ps.setString(6, session);
+		ps.setInt(7, id_utente);
+			        
+		ps.executeUpdate(); 
+	
+    }
+    
+    
+    protected void operazioni(String coloreMetodo, String nomeMetodo, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException
     {
     
     	RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);	
 		
 		//Richiama la sessione corrente o ne crea una se non esiste
-		HttpSession session = request.getSession(); //qui creo la sessione o la ottengo se gia esistente
-
-		//controllo se è il primo accesso alla sessione e se vero creo l'array altrimenti non faccio neiente perchè l'array è già 			//stato creato
-		if(session.isNew() == true)
-		{
-			//creo l'arraylist
-			ArrayList<Output> list = new ArrayList<Output>(4);
-
-			//lo metto nella sessione
-			session.setAttribute(nomeSessionList, list);
-		}
+		HttpSession session = request.getSession(); //qui creo la sessione o la ottengo se gia esistente	
 		request.setAttribute(jspParamUserId ,session.getId());
-
+		String sessione = session.getId();
 		//inserisco i parametri del form in variabili
 		String a = (String) request.getParameter(reqParamNameVal1);
 		String b = (String) request.getParameter(reqParamNameVal2);
@@ -138,7 +206,6 @@ public class Servlet extends HttpServlet {
 		// siamo nel secondo ( o n-esimo giro )
 		{	
 			//prendo l'arraylist della sessione
-			ArrayList<Output> risultati = (ArrayList<Output>) session.getAttribute(nomeSessionList);
 
 			int x = 0;
 			int y = 0;
@@ -155,28 +222,21 @@ public class Servlet extends HttpServlet {
 				int res = x + y;
 
 				risultato = risultato + res;
-				request.setAttribute(jspParamNameResult, res);		
+				request.setAttribute(jspParamNameResult, res);
+				String result = String.valueOf(res);
+			
+				insert(nomeMetodo, a, b, result, date, sessione, request, response);
 			}
 			catch (NumberFormatException e)
 			{	
 				// se le stringhe non possono essere castate in interi,il risultato sarà un errore
 				risultato = risultato + errore;				
 				request.setAttribute(jspParamNameResult, errore);
-       
+				
+				insert(nomeMetodo, a, b, errore, date, sessione, request, response);
+				//queryResult(request, response);
 			}
-			
-			if(session.isNew() != true && risultati.size() == 4)
-				//se la sessione non è nuova e
-                //l'arraylist Ã¨ piena, elimina il primo elemento, 
-			{
-				risultati.remove(0); 
-			}			
-			//aggiungo l'oggetto all' arraylist	
-			risultati.add(new Output(risultato,date,nomeMetodo));
-			
-			session.setAttribute(nomeSessionList, risultati);
-			
-			request.setAttribute("arraylist", risultati);
+		
 		}
 	
 		dispatcher.forward(request, response);
@@ -186,7 +246,15 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
-		operazioni(coloreGet,nomeMetodoGet, request, response);
+		try 
+		{
+			operazioni(coloreGet,nomeMetodoGet, request, response);
+		} 
+		catch (SQLException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	/**
 	* @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -194,6 +262,14 @@ public class Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
-		operazioni(colorePost,nomeMetodoPost, request, response);
+		try 
+		{
+			operazioni(colorePost,nomeMetodoPost, request, response);
+		} 
+		catch (SQLException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
