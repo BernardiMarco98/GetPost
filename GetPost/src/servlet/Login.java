@@ -35,6 +35,9 @@ public class Login extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	 //Metodo che esegue una query con i parametri passati, 
+	 //se presenti nel database ritorna true, altrimenti false
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
@@ -43,23 +46,38 @@ public class Login extends HttpServlet {
 			
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
+			
+			ResultSet rs = null;
+			//qui ho unificato le due query precedenti in un' unica
+			boolean st =false;
+		    try
+		    {
+		   	 //faccio una query per vedere se i dati inseriti sono corretti
+		        PreparedStatement ps =con.prepareStatement ("select * from utente where username=? and password=?");
+		        ps.setString(1, username);
+		        ps.setString(2, password);
+		        System.out.println("executing checkUser with usr ("+username+") pwd ("+password+")");
+		        rs =ps.executeQuery();
+		        st = rs.next();
+		       
+		     }
+		     catch(Exception e)
+		     {
+		         e.printStackTrace();
+		     }
 	        
 	        //Chiamo il metodo checkUser della classe Validate per controllare che 
 	        //i dati passati come parametro dalla form siano presenti nel database
 	        //se corretti,reinderizzo l'URL "Servlet" 
-			if(Validate.checkUser(username, password,con))
+			if(st)
 			{
 				HttpSession session = request.getSession();
 				
 				//metto dentro utente i dati della riga della tabella
-				PreparedStatement ps;
+				
 				try 
 				{
-					ps = con.prepareStatement ("select * from utente where username=?");
-					ps.setString(1, username);
-					System.out.println(ps);
-					ResultSet rs = ps.executeQuery();
-					rs.next();
+					
 					Utente utente = new Utente();
 					utente.setUsername(rs.getString("username"));
 					utente.setPassword(rs.getString("password"));
@@ -73,20 +91,14 @@ public class Login extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-	        	
-	            
-	            response.sendRedirect("Servlet");
-	        	
-	        	
-	        }
+				
+			response.sendRedirect("Servlet");	
+			}
 	        else
 	        {
-	        	//se i dati inseriti nella form non sono corretti, viene stampato il messaggio di errore
-	        	//e si ritorna nella pagina di login
-	           out.println("Username o Password non corretti, reinserire i dati");
-	           RequestDispatcher rs = request.getRequestDispatcher("index.jsp");
-	           rs.include(request, response);
-	           
+	        	out.println("Username o Password non corretti, reinserire i dati");
+	        	RequestDispatcher reDi = request.getRequestDispatcher("index.jsp");
+	        	reDi.include(request, response);
 	        }
 	}
 	

@@ -106,7 +106,6 @@ public class Servlet extends HttpServlet
     {
     	super();
     	
-    	// TODO Auto-generated constructor stub
     }
     /**
 	* @throws IOException 
@@ -124,7 +123,6 @@ public class Servlet extends HttpServlet
     	} 
     	catch (ClassNotFoundException | SQLException e) 
     	{
-    		// TODO Auto-generated catch block
     		e.printStackTrace();
     	} 
     }
@@ -139,6 +137,12 @@ public class Servlet extends HttpServlet
     	PreparedStatement ps;
     	//Prendo dalla sessione l'oggetto utente
     	HttpSession sessione = request.getSession();
+    	//Questo blocco if risolve parzialmente il problema di accesso all'applicazione (da correggere)
+    	if(sessione.isNew())
+    	{
+    		RequestDispatcher reDi = request.getRequestDispatcher("Login");
+        	reDi.forward(request, response);
+    	}
     	Utente datiUtente = (Utente) sessione.getAttribute("utente");
     	//inserisco in una variabile locale l'id_utente
     	Integer id_utente = datiUtente.getId_utente();
