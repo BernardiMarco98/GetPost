@@ -20,8 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 
-import java.sql.DriverManager;
-
 
 /**
  * Servlet implementation class Servlet
@@ -174,7 +172,7 @@ public class Servlet extends HttpServlet {
 		ps.setString(5, date);
 		ps.setString(6, session);
 		ps.setInt(7, id_utente);
-			        
+		
 		ps.executeUpdate(); 
 	
     }
