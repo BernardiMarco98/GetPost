@@ -112,7 +112,8 @@ public class Servlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	*/
     public void init(ServletConfig config)throws ServletException
-    {
+    {	
+    	//Stabilisco la connessione col database
     	try 
     	{
 			Class.forName("org.postgresql.Driver");
@@ -126,19 +127,25 @@ public class Servlet extends HttpServlet {
 		} 
     }
     
+    //funzione che inserisce dentro un ArrayList tutti i risultati di un utente per poi
+    //passarloo alla pagina jsp
     public void queryResult(HttpServletRequest request, HttpServletResponse  response) throws ServletException, IOException, SQLException 
     {
+    	//dichiaro arraylist
     	ArrayList<Risultati> risultati = new ArrayList<Risultati>();
     	
         ResultSet resultSet = null;
         PreparedStatement ps;
+        //Prendo dalla sessione l'oggetto utente
         HttpSession sessione = request.getSession();
     	Utente datiUtente = (Utente) sessione.getAttribute("utente");
+    	//inserisco in una variabile locale l'id_utente
     	Integer id_utente = datiUtente.getId_utente();
     	ps = con.prepareStatement ("select add1, add2, risultato, data, metodo from risultati where id_utente=?");
         ps.setInt(1, id_utente);          
         resultSet = ps.executeQuery();
         
+        //dopo aver fatto la query, inserisco i risultati dentro l'array
         while (resultSet.next()) 
         {
             Risultati user = new Risultati();
@@ -154,8 +161,11 @@ public class Servlet extends HttpServlet {
    	
     }
     
+    //funzione che esegue l'insert dentro risultati per aggiungere l'operazione 
     public void insert(String nomeMetodo,String a, String b, String res, String date, String session, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException
     {	
+    	//prendo dalla sessione l'oggetto utente e instanzio delle variabili locali
+    	//contenenti i dati che mi servono
     	HttpSession sessione = request.getSession();
     	Utente datiUtente = (Utente) sessione.getAttribute("utente");
     	String utente = datiUtente.getUsername();
@@ -165,6 +175,7 @@ public class Servlet extends HttpServlet {
 	
 		PreparedStatement ps=con.prepareStatement("INSERT INTO risultati(metodo, add1, add2, risultato, data, sessione, id_utente ) VALUES(?, ?, ?, ?, ?, ?, ?)");   
 
+		//eseguo l'insert con i dati passati come parametri della funzione
 		ps.setString(1, nomeMetodo);
 		ps.setString(2, a);
 		ps.setString(3, b);

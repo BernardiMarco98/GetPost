@@ -51,9 +51,10 @@ public class Login extends HttpServlet {
 	        {
 	        	HttpSession session = request.getSession();
 	        	
-	        	//mettere dentro utente i dati della riga della tabella
+	        	//metto dentro utente i dati della riga della tabella
 	        	PreparedStatement ps;
-				try {
+				try 
+				{
 					ps = con.prepareStatement ("select * from utente where username=?");
 					ps.setString(1, username);
 					System.out.println(ps);
@@ -66,7 +67,9 @@ public class Login extends HttpServlet {
 					utente.setCognome(rs.getString("cognome"));
 					utente.setId_utente(rs.getInt("id_utente"));
 					session.setAttribute("utente", utente);
-				} catch (SQLException e) {
+				} 
+				catch (SQLException e) 
+				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

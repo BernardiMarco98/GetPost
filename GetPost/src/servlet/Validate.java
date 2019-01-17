@@ -12,8 +12,9 @@ public class Validate
      {
 
       boolean st =false;
-      try{
-
+      try
+      {
+    	 //faccio una query per vedere se i dati inseriti sono corretti
          PreparedStatement ps =con.prepareStatement ("select username,password from utente where username=? and password=?");
          ps.setString(1, username);
          ps.setString(2, password);
@@ -21,7 +22,8 @@ public class Validate
          ResultSet rs =ps.executeQuery();
          st = rs.next();
         
-      }catch(Exception e)
+      }
+      catch(Exception e)
       {
           e.printStackTrace();
       }
