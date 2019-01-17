@@ -7,7 +7,16 @@ public class Risultati
 	public String risultato;
 	public String data;
 	public String metodo;
+	public int id_utente;
 
+
+	public int getId_utente() {
+		return id_utente;
+	}
+
+	public void setId_utente(int id_utente) {
+		this.id_utente = id_utente;
+	}
 
 	public String getAdd1() {
 		return add1;

@@ -54,8 +54,11 @@ public class Login extends HttpServlet {
 	        	//mettere dentro utente i dati della riga della tabella
 	        	PreparedStatement ps;
 				try {
-					ps = con.prepareStatement ("select * from utente where username="+username);
+					ps = con.prepareStatement ("select * from utente where username=?");
+					ps.setString(1, username);
+					System.out.println(ps);
 					ResultSet rs = ps.executeQuery();
+					rs.next();
 					Utente utente = new Utente();
 					utente.setUsername(rs.getString("username"));
 					utente.setPassword(rs.getString("password"));

@@ -41,8 +41,8 @@ Inserire parametro con il metodo POST :
 	La lista dei risultati precedenti:</p>
 <c:forEach var = "Output" items = "${arraylist}">
 	<c:out value = "${Output.add1}"></c:out>
-	<c:out value = "${Output.add2}"></c:out>
-	<c:out value = "${Output.risultato}"></c:out> <!-- usa il metodo getRisultato() per ritornare il valore  -->
+	+&nbsp;<c:out value = "${Output.add2}"></c:out>
+	=&nbsp;<c:out value = "${Output.risultato}"></c:out> <!-- usa il metodo getRisultato() per ritornare il valore  -->
 	<c:out value = "${Output.data}"></c:out>
 	<c:out value = "${Output.metodo}"></c:out>
 	<br>

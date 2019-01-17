@@ -129,15 +129,15 @@ public class Servlet extends HttpServlet {
     public void queryResult(HttpServletRequest request, HttpServletResponse  response) throws ServletException, IOException, SQLException 
     {
     	ArrayList<Risultati> risultati = new ArrayList<Risultati>();
-    	PreparedStatement statement = null;
+    	
         ResultSet resultSet = null;
+        PreparedStatement ps;
         HttpSession sessione = request.getSession();
     	Utente datiUtente = (Utente) sessione.getAttribute("utente");
-    	String utente = datiUtente.getUsername();
-        String query = "select add1, add2, risultato, data, metodo from risultati where id_utente="+ utente +" order by value";
-        
-        statement = con.prepareStatement(query);           
-        resultSet = statement.executeQuery();
+    	Integer id_utente = datiUtente.getId_utente();
+    	ps = con.prepareStatement ("select add1, add2, risultato, data, metodo from risultati where id_utente=?");
+        ps.setInt(1, id_utente);          
+        resultSet = ps.executeQuery();
         
         while (resultSet.next()) 
         {
@@ -236,7 +236,7 @@ public class Servlet extends HttpServlet {
 			}
 		
 		}
-	
+		queryResult(request,response);
 		dispatcher.forward(request, response);
 	
     }
