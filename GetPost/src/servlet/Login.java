@@ -20,9 +20,10 @@ public class Login extends HttpServlet {
 	{
 		super.init(config);
 		//carico il driver ed eseguo la connessione al db
-		try {
+		try 
+		{
 			Class.forName("org.postgresql.Driver");
-		    con=DriverManager.getConnection ("jdbc:postgresql://localhost:5432/getpost","postgres","postgre");
+			con=DriverManager.getConnection ("jdbc:postgresql://localhost:5432/getpost","postgres","postgre");
 			System.out.println("Connessione in corso...");
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
@@ -37,22 +38,21 @@ public class Login extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		
 			response.setContentType("text/html;charset=UTF-8");
-	        PrintWriter out = response.getWriter();
-	        
-	        String username = request.getParameter("username");
-	        String password = request.getParameter("password");
+			PrintWriter out = response.getWriter();
+			
+			String username = request.getParameter("username");
+			String password = request.getParameter("password");
 	        
 	        //Chiamo il metodo checkUser della classe Validate per controllare che 
 	        //i dati passati come parametro dalla form siano presenti nel database
 	        //se corretti,reinderizzo l'URL "Servlet" 
-	        if(Validate.checkUser(username, password,con))
-	        {
-	        	HttpSession session = request.getSession();
-	        	
-	        	//metto dentro utente i dati della riga della tabella
-	        	PreparedStatement ps;
+			if(Validate.checkUser(username, password,con))
+			{
+				HttpSession session = request.getSession();
+				
+				//metto dentro utente i dati della riga della tabella
+				PreparedStatement ps;
 				try 
 				{
 					ps = con.prepareStatement ("select * from utente where username=?");
@@ -88,8 +88,7 @@ public class Login extends HttpServlet {
 	           rs.include(request, response);
 	           
 	        }
-
-    }
+	}
 	
 	
 	protected void doPost (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
