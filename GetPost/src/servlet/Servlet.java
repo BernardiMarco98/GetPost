@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -128,6 +129,72 @@ public class Servlet extends HttpServlet
     }
     //funzione che inserisce dentro un ArrayList tutti i risultati di un utente per poi
     //passarloo alla pagina jsp
+    public boolean login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+    {
+    	response.setContentType("text/html;charset=UTF-8");
+		PrintWriter out = response.getWriter();
+		
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		
+		ResultSet rs = null;
+		//qui ho unificato le due query precedenti in un' unica
+		boolean st =false;
+	    try
+	    {
+	   	 //faccio una query per vedere se i dati inseriti sono corretti
+	        PreparedStatement ps = con.prepareStatement ("select * from utente where username=? and password=?");
+	        ps.setString(1, username);
+	        ps.setString(2, password);
+	        System.out.println("executing checkUser with usr ("+username+") pwd ("+password+")");
+	        rs =ps.executeQuery();
+	        st = rs.next();
+	       
+	     }
+	     catch(Exception e)
+	     {
+	         e.printStackTrace();
+	     }
+        
+        //Chiamo il metodo checkUser della classe Validate per controllare che 
+        //i dati passati come parametro dalla form siano presenti nel database
+        //se corretti,reinderizzo l'URL "Servlet" 
+		if(st)
+		{
+			HttpSession session = request.getSession();
+			
+			//metto dentro utente i dati della riga della tabella
+			
+			try 
+			{
+				
+				Utente utente = new Utente();
+				utente.setUsername(rs.getString("username"));
+				utente.setPassword(rs.getString("password"));
+				utente.setNome(rs.getString("nome"));
+				utente.setCognome(rs.getString("cognome"));
+				utente.setId_utente(rs.getInt("id_utente"));
+				session.setAttribute("utente", utente);
+			} 
+			catch (SQLException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			RequestDispatcher reDi = request.getRequestDispatcher("getpost.jsp");
+        	reDi.include(request, response);
+		}
+        else
+        {
+        	out.println("Username o Password non corretti, reinserire i dati");
+        	RequestDispatcher reDi = request.getRequestDispatcher("index.jsp");
+        	reDi.include(request, response);
+        }
+		System.out.println(st);
+    	return st;
+    }
+    
     public void queryResult(HttpServletRequest request, HttpServletResponse  response) throws ServletException, IOException, SQLException 
     {
     	//dichiaro arraylist
@@ -137,12 +204,7 @@ public class Servlet extends HttpServlet
     	PreparedStatement ps;
     	//Prendo dalla sessione l'oggetto utente
     	HttpSession sessione = request.getSession();
-    	//Questo blocco if risolve parzialmente il problema di accesso all'applicazione (da correggere)
-    	if(sessione.isNew())
-    	{
-    		RequestDispatcher reDi = request.getRequestDispatcher("Login");
-        	reDi.forward(request, response);
-    	}
+    	
     	Utente datiUtente = (Utente) sessione.getAttribute("utente");
     	//inserisco in una variabile locale l'id_utente
     	Integer id_utente = datiUtente.getId_utente();
@@ -211,6 +273,11 @@ public class Servlet extends HttpServlet
     	if (a == null && b == null)	
     	{
     		request.setAttribute(jspParamNameColor, coloreHome);
+    		HttpSession sessioneNuova = request.getSession();
+        	Utente datiUtente = (Utente) sessioneNuova.getAttribute("utente");
+        	String utente = datiUtente.getUsername();
+        	request.setAttribute("username", utente);
+    		
     	}
     	else
     	// siamo nel secondo ( o n-esimo giro )
@@ -253,17 +320,24 @@ public class Servlet extends HttpServlet
 	
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
-    	// TODO Auto-generated method stub
-
-    	try 
+    	boolean b;
+    	HttpSession session = request.getSession();
+    	b = login(request,response);
+    	
+    	if(b || !session.isNew() )
     	{
-    		operazioni(coloreGet,nomeMetodoGet, request, response);
+    		try 
+    		{
+    			operazioni(coloreGet,nomeMetodoGet, request, response);
+    			
+    		}
+    		catch (SQLException e) 
+    		{
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
     	}
-    	catch (SQLException e) 
-    	{
-    		// TODO Auto-generated catch block
-    		e.printStackTrace();
-    	}
+    	
     }
     /**
 	* @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -271,15 +345,23 @@ public class Servlet extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
     	// TODO Auto-generated method stub
+    	boolean b;
+    	HttpSession session = request.getSession();
+    	b = login(request,response);
     	
-    	try 
+    	if(b || !session.isNew() )
     	{
-    		operazioni(colorePost,nomeMetodoPost, request, response);
-    	} 
-    	catch (SQLException e) 
-    	{
-    		// TODO Auto-generated catch block
-    		e.printStackTrace();
+    		try 
+    		{
+    			operazioni(colorePost,nomeMetodoPost, request, response);
+    			
+    		}
+    		catch (SQLException e) 
+    		{
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
     	}
+    	
     }
 }
