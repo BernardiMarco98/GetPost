@@ -117,11 +117,11 @@ public class Servlet extends HttpServlet {
 
 
 		if (session.isNew()) {
+			System.out.println("login nel doGet");
 			b = login(request, response);
 			if(b)
 			{
-				session.setAttribute("Validate", b);
-				System.out.println("inserito valore Validate in sessione");
+				
 				try {
 					System.out.println("sono dentro il blocco doGet");
 					operazioni(coloreGet, nomeMetodoGet, request, response);
@@ -136,7 +136,6 @@ public class Servlet extends HttpServlet {
 		{
 			
 				try {
-				System.out.println("operazioni senza login");
 				operazioni(coloreGet, nomeMetodoGet, request, response);
 				} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -156,7 +155,7 @@ public class Servlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		boolean b;
 		HttpSession session = request.getSession();
-
+		
 		b = login(request, response);
 
 		if (b || !session.isNew()) {
@@ -240,7 +239,7 @@ public class Servlet extends HttpServlet {
 
 			ps.setString(1, username);
 			ps.setString(2, password);
-			System.out.println("executing checkUser with usr (" + username + ") pwd (" + password + ")");
+			System.out.println("executing login with usr (" + username + ") pwd (" + password + ")");
 			rs = ps.executeQuery();
 			st = rs.next();
 		} catch (Exception e) {
