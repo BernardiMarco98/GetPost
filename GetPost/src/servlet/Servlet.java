@@ -29,6 +29,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/Servlet")
 public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
 	String errore = "errore";
 	String nomejsp = "getpost.jsp";
 	String coloreHome = "white";
@@ -114,16 +115,34 @@ public class Servlet extends HttpServlet {
 		boolean b;
 		HttpSession session = request.getSession();
 
-		b = login(request, response);
 
-		if (b || !session.isNew()) {
-			try {
-				operazioni(coloreGet, nomeMetodoGet, request, response);
-			} catch (SQLException e) {
+		if (session.isNew()) {
+			b = login(request, response);
+			if(b)
+			{
+				session.setAttribute("Validate", b);
+				System.out.println("inserito valore Validate in sessione");
+				try {
+					System.out.println("sono dentro il blocco doGet");
+					operazioni(coloreGet, nomeMetodoGet, request, response);
+				} catch (SQLException e) {
 
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				}
 			}
+		}
+		else 
+		{
+			
+				try {
+				System.out.println("operazioni senza login");
+				operazioni(coloreGet, nomeMetodoGet, request, response);
+				} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+			
 		}
 	}
 
@@ -142,6 +161,7 @@ public class Servlet extends HttpServlet {
 
 		if (b || !session.isNew()) {
 			try {
+				System.out.println("sono nel doPost");
 				operazioni(colorePost, nomeMetodoPost, request, response);
 			} catch (SQLException e) {
 
@@ -371,4 +391,3 @@ public class Servlet extends HttpServlet {
 	}
 }
 
-//~ Formatted by Jindent --- http://www.jindent.com
