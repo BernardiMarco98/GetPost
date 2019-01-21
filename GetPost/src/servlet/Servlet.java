@@ -29,7 +29,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/Servlet")
 public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	String errore = "errore";
 	String nomejsp = "getpost.jsp";
 	String coloreHome = "white";
@@ -115,33 +115,29 @@ public class Servlet extends HttpServlet {
 		boolean b;
 		HttpSession session = request.getSession();
 
-
 		if (session.isNew()) {
 			System.out.println("login nel doGet");
 			b = login(request, response);
-			if(b)
-			{
-				
+			if (b) {
+
 				try {
 					System.out.println("sono dentro il blocco doGet");
 					operazioni(coloreGet, nomeMetodoGet, request, response);
 				} catch (SQLException e) {
 
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
-		}
-		else 
-		{
-			
-				try {
+		} else {
+
+			try {
 				operazioni(coloreGet, nomeMetodoGet, request, response);
-				} catch (SQLException e) {
+			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				}
-			
+			}
+
 		}
 	}
 
@@ -155,7 +151,7 @@ public class Servlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		boolean b;
 		HttpSession session = request.getSession();
-		
+
 		b = login(request, response);
 
 		if (b || !session.isNew()) {
@@ -389,4 +385,3 @@ public class Servlet extends HttpServlet {
 		System.out.println(risultati);
 	}
 }
-
