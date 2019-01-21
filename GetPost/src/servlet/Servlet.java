@@ -134,7 +134,7 @@ public class Servlet extends HttpServlet {
 			try {
 				operazioni(coloreGet, nomeMetodoGet, request, response);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			}
 
