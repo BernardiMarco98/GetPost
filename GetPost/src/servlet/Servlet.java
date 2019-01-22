@@ -114,31 +114,50 @@ public class Servlet extends HttpServlet {
 			throws ServletException, IOException {
 		boolean b;
 		HttpSession session = request.getSession();
-
-		if (session.isNew()) {
-			System.out.println("login nel doGet");
-			b = login(request, response);
-			if (b) {
-
+		
+		if(session.isNew())
+		{
+			response.sendRedirect("index.jsp");
+		}
+		else
+		{	
+			try {
+			if((boolean) session.getAttribute("validate").equals(null) || (boolean) session.getAttribute("validate"))
+			{
 				try {
-					System.out.println("sono dentro il blocco doGet");
 					operazioni(coloreGet, nomeMetodoGet, request, response);
 				} catch (SQLException e) {
-
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}			
+			else 
+			{
+				b = login(request,response);
+				System.out.println("sono qui");
+				if(b)
+				{
+					session.setAttribute("validate", b);
+					try {
+						operazioni(coloreGet, nomeMetodoGet, request, response);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
-		} else {
-
-			try {
-				operazioni(coloreGet, nomeMetodoGet, request, response);
-			} catch (SQLException e) {
-
-				e.printStackTrace();
 			}
-
+			catch(NullPointerException e)
+			{
+				try {
+					operazioni(coloreGet, nomeMetodoGet, request, response);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
 		}
+
 	}
 
 	/**
@@ -152,9 +171,8 @@ public class Servlet extends HttpServlet {
 		boolean b;
 		HttpSession session = request.getSession();
 
-		b = login(request, response);
-
-		if (b || !session.isNew()) {
+		if(!session.isNew() && (boolean)session.getAttribute("validate"))
+		{
 			try {
 				System.out.println("sono nel doPost");
 				operazioni(colorePost, nomeMetodoPost, request, response);
@@ -164,6 +182,24 @@ public class Servlet extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
+		else
+		{
+			b = login(request,response);
+			
+			if(b)
+			{
+				session.setAttribute("validate", b);
+				try {
+					System.out.println("sono nel doPost");
+					operazioni(colorePost, nomeMetodoPost, request, response);
+				} catch (SQLException e) {
+
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
 	}
 
 	/**
