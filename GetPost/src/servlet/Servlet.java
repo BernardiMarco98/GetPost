@@ -1,7 +1,6 @@
 package servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -112,52 +111,94 @@ public class Servlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		boolean b;
+
+		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 		HttpSession session = request.getSession();
-		
-		if(session.isNew())
-		{
-			response.sendRedirect("index.jsp");
-		}
-		else
-		{	
-			try {
-			if((boolean) session.getAttribute("validate").equals(null) || (boolean) session.getAttribute("validate"))
-			{
-				try {
-					operazioni(coloreGet, nomeMetodoGet, request, response);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}			
-			else 
-			{
-				b = login(request,response);
-				System.out.println("sono qui");
-				if(b)
-				{
-					session.setAttribute("validate", b);
+
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+
+		boolean bo = login(username, password, session);
+
+		if (session.isNew()) {
+			if (bo) {
+				request.setAttribute(jspParamUserId, session.getId());
+				String sessione = session.getId();
+				Utente datiUtente = (Utente) session.getAttribute("utente");
+				String utente = datiUtente.getUsername();
+				Integer id_utente = datiUtente.getId_utente();
+				ArrayList<Risultati> risultati = null;
+				String a = (String) request.getParameter(reqParamNameVal1);
+				String b = (String) request.getParameter(reqParamNameVal2);
+				String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+
+				request.setAttribute("data", date);
+				request.setAttribute("metodo", nomeMetodoGet);
+
+				if ((a == null) && (b == null)) {
+					request.setAttribute(jspParamNameColor, coloreHome);
+					request.setAttribute("username", utente);
+				} else {
+					request.setAttribute(jspParamNameColor, coloreGet);
+					String risultato = operazioni(a, b);
+					request.setAttribute(jspParamNameResult, risultato);
+					request.setAttribute("username", utente);
 					try {
-						operazioni(coloreGet, nomeMetodoGet, request, response);
+						insert(nomeMetodoGet, a, b, risultato, date, sessione, id_utente);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				}
-			}
-			}
-			catch(NullPointerException e)
-			{
-				try {
-					operazioni(coloreGet, nomeMetodoGet, request, response);
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		}
+					try {
+						risultati = queryResult(datiUtente.getId_utente());
+						request.setAttribute("arraylist", risultati);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
+				}
+				request.setAttribute("arraylist", risultati);
+				dispatcher.forward(request, response);
+			} else {
+				response.sendRedirect("index.jsp");
+				return;
+			}
+
+		} else if (session.getAttribute("utente") != null) {
+			request.setAttribute(jspParamUserId, session.getId());
+			String sessione = session.getId();
+			Utente datiUtente = (Utente) session.getAttribute("utente");
+			Integer id_utente = datiUtente.getId_utente();
+			String utente = datiUtente.getUsername();
+			ArrayList<Risultati> risultati = null;
+			String a = (String) request.getParameter(reqParamNameVal1);
+			String b = (String) request.getParameter(reqParamNameVal2);
+			String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+
+			request.setAttribute("data", date);
+			request.setAttribute("metodo", nomeMetodoGet);
+
+			request.setAttribute(jspParamNameColor, coloreGet);
+			String risultato = operazioni(a, b);
+			request.setAttribute(jspParamNameResult, risultato);
+			request.setAttribute("username", utente);
+			try {
+				insert(nomeMetodoGet, a, b, risultato, date, sessione, id_utente);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				risultati = queryResult(datiUtente.getId_utente());
+				request.setAttribute("arraylist", risultati);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		dispatcher.forward(request, response);
 	}
 
 	/**
@@ -166,40 +207,93 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
-		// TODO Auto-generated method stub
-		boolean b;
+		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 		HttpSession session = request.getSession();
 
-		if(!session.isNew() && (boolean)session.getAttribute("validate"))
-		{
-			try {
-				System.out.println("sono nel doPost");
-				operazioni(colorePost, nomeMetodoPost, request, response);
-			} catch (SQLException e) {
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
 
+		boolean bo = login(username, password, session);
+
+		if (session.isNew()) {
+			if (bo) {
+				request.setAttribute(jspParamUserId, session.getId());
+				String sessione = session.getId();
+				Utente datiUtente = (Utente) session.getAttribute("utente");
+				String utente = datiUtente.getUsername();
+				Integer id_utente = datiUtente.getId_utente();
+				ArrayList<Risultati> risultati = null;
+				String a = (String) request.getParameter(reqParamNameVal1);
+				String b = (String) request.getParameter(reqParamNameVal2);
+				String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+
+				request.setAttribute("data", date);
+				request.setAttribute("metodo", nomeMetodoGet);
+
+				if ((a == null) && (b == null)) {
+					request.setAttribute(jspParamNameColor, coloreHome);
+					request.setAttribute("username", utente);
+				} else {
+					request.setAttribute(jspParamNameColor, colorePost);
+					String risultato = operazioni(a, b);
+					request.setAttribute(jspParamNameResult, risultato);
+					request.setAttribute("username", utente);
+					try {
+						insert(nomeMetodoPost, a, b, risultato, date, sessione, id_utente);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						risultati = queryResult(datiUtente.getId_utente());
+						request.setAttribute("arraylist", risultati);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+				request.setAttribute("arraylist", risultati);
+				dispatcher.forward(request, response);
+			} else {
+				response.sendRedirect("index.jsp");
+				return;
+			}
+
+		} else if (session.getAttribute("utente") != null) {
+			request.setAttribute(jspParamUserId, session.getId());
+			String sessione = session.getId();
+			Utente datiUtente = (Utente) session.getAttribute("utente");
+			Integer id_utente = datiUtente.getId_utente();
+			String utente = datiUtente.getUsername();
+			ArrayList<Risultati> risultati = null;
+			String a = (String) request.getParameter(reqParamNameVal1);
+			String b = (String) request.getParameter(reqParamNameVal2);
+			String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+
+			request.setAttribute("data", date);
+			request.setAttribute("metodo", nomeMetodoPost);
+
+			request.setAttribute(jspParamNameColor, colorePost);
+			String risultato = operazioni(a, b);
+			request.setAttribute(jspParamNameResult, risultato);
+			request.setAttribute("username", utente);
+			try {
+				insert(nomeMetodoPost, a, b, risultato, date, sessione, id_utente);
+			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		else
-		{
-			b = login(request,response);
-			
-			if(b)
-			{
-				session.setAttribute("validate", b);
-				try {
-					System.out.println("sono nel doPost");
-					operazioni(colorePost, nomeMetodoPost, request, response);
-				} catch (SQLException e) {
-
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			try {
+				risultati = queryResult(datiUtente.getId_utente());
+				request.setAttribute("arraylist", risultati);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}
 
+		}
+		dispatcher.forward(request, response);
 	}
 
 	/**
@@ -222,18 +316,7 @@ public class Servlet extends HttpServlet {
 
 	// funzione che esegue l'insert dentro risultati per aggiungere l'operazione
 	public void insert(String nomeMetodo, String a, String b, String res, String date, String session,
-			HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException, SQLException {
-
-		// prendo dalla sessione l'oggetto utente e instanzio delle variabili locali
-		// contenenti i dati che mi servono
-		HttpSession sessione = request.getSession();
-		Utente datiUtente = (Utente) sessione.getAttribute("utente");
-		String utente = datiUtente.getUsername();
-		Integer id_utente = datiUtente.getId_utente();
-
-		request.setAttribute("username", utente);
-		System.out.println(utente);
+			Integer id_utente) throws SQLException {
 
 		PreparedStatement ps = con.prepareStatement(
 				"INSERT INTO risultati(metodo, add1, add2, risultato, data, sessione, id_utente ) VALUES(?, ?, ?, ?, ?, ?, ?)");
@@ -252,20 +335,12 @@ public class Servlet extends HttpServlet {
 	// funzione che inserisce dentro un ArrayList tutti i risultati di un utente per
 	// poi
 	// passarloo alla pagina jsp
-	public boolean login(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		response.setContentType("text/html;charset=UTF-8");
+	public boolean login(String username, String password, HttpSession session) {
 
-		PrintWriter out = response.getWriter();
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
 		ResultSet rs = null;
-
-		// qui ho unificato le due query precedenti in un' unica
 		boolean st = false;
 
 		try {
-
 			// faccio una query per vedere se i dati inseriti sono corretti
 			PreparedStatement ps = con.prepareStatement("select * from utente where username=? and password=?");
 
@@ -278,12 +353,7 @@ public class Servlet extends HttpServlet {
 			e.printStackTrace();
 		}
 
-		// Chiamo il metodo checkUser della classe Validate per controllare che
-		// i dati passati come parametro dalla form siano presenti nel database
-		// se corretti,reinderizzo l'URL "Servlet"
 		if (st) {
-			HttpSession session = request.getSession();
-
 			// metto dentro utente i dati della riga della tabella
 			try {
 				Utente utente = new Utente();
@@ -300,106 +370,44 @@ public class Servlet extends HttpServlet {
 				e.printStackTrace();
 			}
 
-			RequestDispatcher reDi = request.getRequestDispatcher("getpost.jsp");
-
-			reDi.include(request, response);
-		} else {
-			out.println("Username o Password non corretti, reinserire i dati");
-
-			RequestDispatcher reDi = request.getRequestDispatcher("index.jsp");
-
-			reDi.include(request, response);
 		}
-
-		System.out.println(st);
-
 		return st;
 	}
 
-	protected void operazioni(String coloreMetodo, String nomeMetodo, HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException, SQLException {
-		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+	protected String operazioni(String a, String b) {
 
-		// Richiama la sessione corrente o ne crea una se non esiste
-		HttpSession session = request.getSession(); // qui creo la sessione o la ottengo se gia esistente
+		int x = 0;
+		int y = 0;
+		String risultato = a + "+" + b + "=";
 
-		request.setAttribute(jspParamUserId, session.getId());
+		// in questo blocco eseguo la somma castando le stringhe passate nel form
+		try {
+			x = Integer.parseInt(a);
+			y = Integer.parseInt(b);
 
-		String sessione = session.getId();
+			int res = x + y;
 
-		// inserisco i parametri del form in variabili
-		String a = (String) request.getParameter(reqParamNameVal1);
-		String b = (String) request.getParameter(reqParamNameVal2);
-		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+			risultato = risultato + res;
 
-		request.setAttribute("data", date);
-		request.setAttribute("metodo", nomeMetodo);
+			return risultato;
 
-		// al primo giro setto lo sfondo della pagina bianco
-		if ((a == null) && (b == null)) {
-			request.setAttribute(jspParamNameColor, coloreHome);
+		} catch (NumberFormatException e) {
 
-			HttpSession sessioneNuova = request.getSession();
-			Utente datiUtente = (Utente) sessioneNuova.getAttribute("utente");
-			String utente = datiUtente.getUsername();
-
-			request.setAttribute("username", utente);
-		} else
-
-		// siamo nel secondo ( o n-esimo giro )
-		{
-
-			// prendo l'arraylist della sessione
-			int x = 0;
-			int y = 0;
-
-			request.setAttribute(jspParamNameColor, coloreMetodo);
-
-			String risultato = a + "+" + b + "=";
-
-			// in questo blocco eseguo la somma castando le stringhe passate nel form
-			try {
-				x = Integer.parseInt(a);
-				y = Integer.parseInt(b);
-
-				int res = x + y;
-
-				risultato = risultato + res;
-				request.setAttribute(jspParamNameResult, res);
-
-				String result = String.valueOf(res);
-
-				insert(nomeMetodo, a, b, result, date, sessione, request, response);
-			} catch (NumberFormatException e) {
-
-				// se le stringhe non possono essere castate in interi,il risultato sarà un
-				// errore
-				risultato = risultato + errore;
-				request.setAttribute(jspParamNameResult, errore);
-				insert(nomeMetodo, a, b, errore, date, sessione, request, response);
-
-				// queryResult(request, response);
-			}
+			// se le stringhe non possono essere castate in interi,il risultato sarà un
+			// errore
+			risultato = risultato + errore;
+			return risultato;
 		}
-
-		queryResult(request, response);
-		dispatcher.forward(request, response);
 	}
 
-	public void queryResult(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException, SQLException {
+	public ArrayList<Risultati> queryResult(Integer id_utente) throws SQLException {
 
 		// dichiaro arraylist
 		ArrayList<Risultati> risultati = new ArrayList<Risultati>();
 		ResultSet resultSet = null;
 		PreparedStatement ps;
 
-		// Prendo dalla sessione l'oggetto utente
-		HttpSession sessione = request.getSession();
-		Utente datiUtente = (Utente) sessione.getAttribute("utente");
-
 		// inserisco in una variabile locale l'id_utente
-		Integer id_utente = datiUtente.getId_utente();
 
 		ps = con.prepareStatement("select add1, add2, risultato, data, metodo from risultati where id_utente=?");
 		ps.setInt(1, id_utente);
@@ -417,7 +425,6 @@ public class Servlet extends HttpServlet {
 			risultati.add(user);
 		}
 
-		request.setAttribute("arraylist", risultati);
-		System.out.println(risultati);
+		return risultati;
 	}
 }
