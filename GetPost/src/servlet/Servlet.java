@@ -112,22 +112,21 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 		HttpSession session = request.getSession();
 
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
-
 		if (session.isNew()) {
-			response.sendRedirect("index.jsp");
-			return;
+			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+			dispatcher.forward(request, response);
 		} else {
-			boolean bo = false;
-			if (session.getAttribute("utente") == null)
-				bo = login(username, password, session);
+			Utente bo;
+			if (session.getAttribute("utente") == null) {
+				String username = request.getParameter("username");
+				String password = request.getParameter("password");
+				bo = login(username, password);
+				session.setAttribute("utente", bo);
 
-			System.out.println(bo);
-			if (bo || session.getAttribute("utente") != null) {
+			}
+			if (session.getAttribute("utente") != null) {
 
 				request.setAttribute(jspParamUserId, session.getId());
 				String sessione = session.getId();
@@ -140,7 +139,7 @@ public class Servlet extends HttpServlet {
 				String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
 
 				request.setAttribute("data", date);
-				request.setAttribute("metodo", nomeMetodoGet);
+				request.setAttribute("metodo", request.getParameter("method"));
 
 				if ((a == null) && (b == null)) {
 					request.setAttribute(jspParamNameColor, coloreHome);
@@ -153,12 +152,12 @@ public class Servlet extends HttpServlet {
 						e.printStackTrace();
 					}
 				} else {
-					request.setAttribute(jspParamNameColor, coloreGet);
+					request.setAttribute(jspParamNameColor, request.getParameter("color"));
 					String risultato = operazioni(a, b);
 					request.setAttribute(jspParamNameResult, risultato);
 					request.setAttribute("username", utente);
 					try {
-						insert(nomeMetodoGet, a, b, risultato, date, sessione, id_utente);
+						insert(request.getParameter("method"), a, b, risultato, date, sessione, id_utente);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -172,9 +171,11 @@ public class Servlet extends HttpServlet {
 					}
 
 				}
+				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 				dispatcher.forward(request, response);
 			} else {
-				response.sendRedirect("index.jsp");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+				dispatcher.forward(request, response);
 			}
 		}
 	}
@@ -185,71 +186,8 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
-		HttpSession session = request.getSession();
 
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
-
-		if (session.isNew()) {
-			response.sendRedirect("index.jsp");
-			return;
-		} else {
-			boolean bo = false;
-			if (session.getAttribute("utente") == null)
-				bo = login(username, password, session);
-
-			System.out.println(bo);
-			if (bo || session.getAttribute("utente") != null) {
-
-				request.setAttribute(jspParamUserId, session.getId());
-				String sessione = session.getId();
-				Utente datiUtente = (Utente) session.getAttribute("utente");
-				String utente = datiUtente.getUsername();
-				Integer id_utente = datiUtente.getId_utente();
-				ArrayList<Risultati> risultati = null;
-				String a = (String) request.getParameter(reqParamNameVal1);
-				String b = (String) request.getParameter(reqParamNameVal2);
-				String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
-
-				request.setAttribute("data", date);
-				request.setAttribute("metodo", nomeMetodoPost);
-
-				if ((a == null) && (b == null)) {
-					request.setAttribute(jspParamNameColor, coloreHome);
-					request.setAttribute("username", utente);
-					try {
-						risultati = queryResult(datiUtente.getId_utente());
-						request.setAttribute("arraylist", risultati);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				} else {
-					request.setAttribute(jspParamNameColor, colorePost);
-					String risultato = operazioni(a, b);
-					request.setAttribute(jspParamNameResult, risultato);
-					request.setAttribute("username", utente);
-					try {
-						insert(nomeMetodoPost, a, b, risultato, date, sessione, id_utente);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					try {
-						risultati = queryResult(datiUtente.getId_utente());
-						request.setAttribute("arraylist", risultati);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				}
-				dispatcher.forward(request, response);
-			} else {
-				response.sendRedirect("index.jsp");
-			}
-		}
+		doGet(request, response);
 	}
 
 	/**
@@ -291,10 +229,11 @@ public class Servlet extends HttpServlet {
 	// funzione che inserisce dentro un ArrayList tutti i risultati di un utente per
 	// poi
 	// passarloo alla pagina jsp
-	public boolean login(String username, String password, HttpSession session) {
+	public Utente login(String username, String password) {
 
 		ResultSet rs = null;
 		boolean st = false;
+		Utente utente = new Utente();
 
 		try {
 			// faccio una query per vedere se i dati inseriti sono corretti
@@ -312,14 +251,13 @@ public class Servlet extends HttpServlet {
 		if (st) {
 			// metto dentro utente i dati della riga della tabella
 			try {
-				Utente utente = new Utente();
 
 				utente.setUsername(rs.getString("username"));
 				utente.setPassword(rs.getString("password"));
 				utente.setNome(rs.getString("nome"));
 				utente.setCognome(rs.getString("cognome"));
 				utente.setId_utente(rs.getInt("id_utente"));
-				session.setAttribute("utente", utente);
+				return utente;
 			} catch (SQLException e) {
 
 				// TODO Auto-generated catch block
@@ -327,7 +265,7 @@ public class Servlet extends HttpServlet {
 			}
 
 		}
-		return st;
+		return null;
 	}
 
 	protected String operazioni(String a, String b) {
