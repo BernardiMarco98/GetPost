@@ -32,15 +32,11 @@ public class Servlet extends HttpServlet {
 	String errore = "errore";
 	String nomejsp = "getpost.jsp";
 	String coloreHome = "white";
-	String coloreGet = "yellow";
-	String colorePost = "red";
 	String reqParamNameVal1 = "valore1";
 	String reqParamNameVal2 = "valore2";
 	String jspParamNameResult = "risultato";
 	String jspParamNameColor = "colore";
 	String jspParamUserId = "id";
-	String nomeMetodoGet = "GET";
-	String nomeMetodoPost = "POST";
 	String nomeSessionList = "lista";
 	public Connection con;
 
@@ -118,16 +114,19 @@ public class Servlet extends HttpServlet {
 			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 			dispatcher.forward(request, response);
 		} else {
-			Utente bo;
+
 			if (session.getAttribute("utente") == null) {
 				String username = request.getParameter("username");
 				String password = request.getParameter("password");
-				bo = login(username, password);
-				session.setAttribute("utente", bo);
-
+				Utente utente = login(username, password);
+				if (utente != null)
+					session.setAttribute("utente", utente);
 			}
-			if (session.getAttribute("utente") != null) {
-
+			if (session.getAttribute("utente") == null) {
+				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+				dispatcher.forward(request, response);		
+			} else {
+				
 				request.setAttribute(jspParamUserId, session.getId());
 				String sessione = session.getId();
 				Utente datiUtente = (Utente) session.getAttribute("utente");
@@ -173,9 +172,6 @@ public class Servlet extends HttpServlet {
 				}
 				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 				dispatcher.forward(request, response);
-			} else {
-				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-				dispatcher.forward(request, response);
 			}
 		}
 	}
@@ -211,19 +207,22 @@ public class Servlet extends HttpServlet {
 	// funzione che esegue l'insert dentro risultati per aggiungere l'operazione
 	public void insert(String nomeMetodo, String a, String b, String res, String date, String session,
 			Integer id_utente) throws SQLException {
+		try {
+			PreparedStatement ps = con.prepareStatement(
+					"INSERT INTO risultati(metodo, add1, add2, risultato, data, sessione, id_utente ) VALUES(?, ?, ?, ?, ?, ?, ?)");
 
-		PreparedStatement ps = con.prepareStatement(
-				"INSERT INTO risultati(metodo, add1, add2, risultato, data, sessione, id_utente ) VALUES(?, ?, ?, ?, ?, ?, ?)");
-
-		// eseguo l'insert con i dati passati come parametri della funzione
-		ps.setString(1, nomeMetodo);
-		ps.setString(2, a);
-		ps.setString(3, b);
-		ps.setString(4, res);
-		ps.setString(5, date);
-		ps.setString(6, session);
-		ps.setInt(7, id_utente);
-		ps.executeUpdate();
+			// eseguo l'insert con i dati passati come parametri della funzione
+			ps.setString(1, nomeMetodo);
+			ps.setString(2, a);
+			ps.setString(3, b);
+			ps.setString(4, res);
+			ps.setString(5, date);
+			ps.setString(6, session);
+			ps.setInt(7, id_utente);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	// funzione che inserisce dentro un ArrayList tutti i risultati di un utente per
@@ -300,23 +299,25 @@ public class Servlet extends HttpServlet {
 		PreparedStatement ps;
 
 		// inserisco in una variabile locale l'id_utente
+		try {
+			ps = con.prepareStatement("select add1, add2, risultato, data, metodo from risultati where id_utente=?");
+			ps.setInt(1, id_utente);
+			resultSet = ps.executeQuery();
 
-		ps = con.prepareStatement("select add1, add2, risultato, data, metodo from risultati where id_utente=?");
-		ps.setInt(1, id_utente);
-		resultSet = ps.executeQuery();
+			// dopo aver fatto la query, inserisco i risultati dentro l'array
+			while (resultSet.next()) {
+				Risultati user = new Risultati();
 
-		// dopo aver fatto la query, inserisco i risultati dentro l'array
-		while (resultSet.next()) {
-			Risultati user = new Risultati();
-
-			user.setAdd1(resultSet.getString("add1"));
-			user.setAdd2(resultSet.getString("add2"));
-			user.setRisultato(resultSet.getString("risultato"));
-			user.setData(resultSet.getString("data"));
-			user.setMetodo(resultSet.getString("metodo"));
-			risultati.add(user);
+				user.setAdd1(resultSet.getString("add1"));
+				user.setAdd2(resultSet.getString("add2"));
+				user.setRisultato(resultSet.getString("risultato"));
+				user.setData(resultSet.getString("data"));
+				user.setMetodo(resultSet.getString("metodo"));
+				risultati.add(user);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
 		return risultati;
 	}
 }

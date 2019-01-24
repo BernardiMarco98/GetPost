@@ -38,7 +38,7 @@ Inserire parametro con il metodo POST :
 </c:if>
 <br>
 <c:if test = "${not empty arraylist }">
-	La lista dei risultati precedenti:</p>
+	<p>La lista dei risultati precedenti:</p>
 <c:forEach var = "Output" items = "${arraylist}">
 	<c:out value = "${Output.add1}"></c:out>
 	+&nbsp;<c:out value = "${Output.add2}"></c:out>
