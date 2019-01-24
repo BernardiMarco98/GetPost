@@ -57,8 +57,6 @@ Inserire i numeri da sommare con il metodo GET :
 <p><form action = "Servlet" method ="get">
 <input type="text" name="valore1"  /> <br>
 <p><input type="text" name="valore2"  /> <br>
-<input type="hidden" name = "color" value = "yellow">
-<input type="hidden" name = "method" value = "GET">
 <p><input type = submit >
 </form>
 
@@ -67,8 +65,6 @@ Inserire i numeri da sommare con il metodo POST :
 <p><form action = "Servlet" method ="post">
 <input type="text" name="valore1"  /> <br>
 <p><input type="text" name="valore2"  /> <br>
-<input type="hidden" name = "color" value = "red">
-<input type="hidden" name = "method" value = "POST">
 <p><input type = submit >
 
 </form>

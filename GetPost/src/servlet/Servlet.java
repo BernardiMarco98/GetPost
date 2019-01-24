@@ -108,6 +108,7 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+		// quando sei qui, sai di essere in doGet()
 		HttpSession session = request.getSession();
 
 		if (session.isNew()) {
@@ -115,54 +116,89 @@ public class Servlet extends HttpServlet {
 			dispatcher.forward(request, response);
 		} else {
 
-			if (session.getAttribute("utente") == null) {
+			Utente session_user;
+			session_user = (Utente) session.getAttribute("utente");
+
+			// all'inizio la request ti porta qui
+
+			if (session_user == null) {
+
+				// qui desumi che l'utente non e' loggato
+				// e quindi leggi i paramtri usernae/pwd per verificare
 				String username = request.getParameter("username");
 				String password = request.getParameter("password");
+
+				// qui verifichi
 				Utente utente = login(username, password);
-				if (utente != null)
+
+				// il risultato puo' essere:
+				// - credenziali non valide -> utente = null
+				// - credenziali valide -> utente not null
+
+				if (utente != null) {
+					// qui , se l'utente e' stato autenticato, salvi i suoi dati in sessione
 					session.setAttribute("utente", utente);
-			}
-			if (session.getAttribute("utente") == null) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-				dispatcher.forward(request, response);
+					request.setAttribute(jspParamNameColor, coloreHome);
+					request.setAttribute("username", utente.getUsername());
+					request.setAttribute(jspParamUserId, session.getId());
+					ArrayList<Risultati> risultati = null;
+					String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+					request.setAttribute("data", date);
+					request.setAttribute("metodo", request.getMethod());
+					try {
+						risultati = queryResult(utente.getId_utente());
+						request.setAttribute("arraylist", risultati);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+					dispatcher.forward(request, response);
+
+				} else {
+					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+					dispatcher.forward(request, response);
+				}
 			} else {
 
 				request.setAttribute(jspParamUserId, session.getId());
 				String sessione = session.getId();
-				Utente datiUtente = (Utente) session.getAttribute("utente");
-				String utente = datiUtente.getUsername();
-				Integer id_utente = datiUtente.getId_utente();
+				String utente = session_user.getUsername();
+				Integer id_utente = session_user.getId_utente();
+				System.out.print(id_utente);
 				ArrayList<Risultati> risultati = null;
 				String a = (String) request.getParameter(reqParamNameVal1);
 				String b = (String) request.getParameter(reqParamNameVal2);
 				String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
-
 				request.setAttribute("data", date);
-				request.setAttribute("metodo", request.getParameter("method"));
+				request.setAttribute("metodo", request.getMethod());
 
 				if ((a == null) && (b == null)) {
 					request.setAttribute(jspParamNameColor, coloreHome);
 					request.setAttribute("username", utente);
 					try {
-						risultati = queryResult(datiUtente.getId_utente());
+						risultati = queryResult(id_utente);
 						request.setAttribute("arraylist", risultati);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
-					request.setAttribute(jspParamNameColor, request.getParameter("color"));
+					if (request.getMethod().equals("GET"))
+						request.setAttribute(jspParamNameColor, "yellow");
+					else
+						request.setAttribute(jspParamNameColor, "red");
 					String risultato = operazioni(a, b);
 					request.setAttribute(jspParamNameResult, risultato);
 					request.setAttribute("username", utente);
 					try {
-						insert(request.getParameter("method"), a, b, risultato, date, sessione, id_utente);
+						insert(request.getMethod(), a, b, risultato, date, sessione, id_utente);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					try {
-						risultati = queryResult(datiUtente.getId_utente());
+						risultati = queryResult(id_utente);
 						request.setAttribute("arraylist", risultati);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
@@ -173,6 +209,7 @@ public class Servlet extends HttpServlet {
 				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 				dispatcher.forward(request, response);
 			}
+
 		}
 	}
 
@@ -182,7 +219,7 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		// quando sei qui ... sai di essere in doPost()
 		doGet(request, response);
 	}
 
