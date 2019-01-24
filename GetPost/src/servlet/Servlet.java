@@ -124,9 +124,9 @@ public class Servlet extends HttpServlet {
 			}
 			if (session.getAttribute("utente") == null) {
 				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-				dispatcher.forward(request, response);		
+				dispatcher.forward(request, response);
 			} else {
-				
+
 				request.setAttribute(jspParamUserId, session.getId());
 				String sessione = session.getId();
 				Utente datiUtente = (Utente) session.getAttribute("utente");
