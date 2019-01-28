@@ -110,6 +110,7 @@ public class Servlet extends HttpServlet {
 
 		// quando sei qui, sai di essere in doGet()
 		HttpSession session = request.getSession();
+		String session_id = session.getId();
 
 		if (session.isNew()) {
 			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
@@ -140,7 +141,7 @@ public class Servlet extends HttpServlet {
 					session.setAttribute("utente", utente);
 					request.setAttribute(jspParamNameColor, coloreHome);
 					request.setAttribute("username", utente.getUsername());
-					request.setAttribute(jspParamUserId, session.getId());
+					request.setAttribute(jspParamUserId, session_id);
 					ArrayList<Risultati> risultati = null;
 					String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
 					request.setAttribute("data", date);
@@ -161,8 +162,7 @@ public class Servlet extends HttpServlet {
 				}
 			} else {
 
-				request.setAttribute(jspParamUserId, session.getId());
-				String sessione = session.getId();
+				request.setAttribute(jspParamUserId, session_id);
 				String utente = session_user.getUsername();
 				Integer id_utente = session_user.getId_utente();
 				System.out.print(id_utente);
@@ -192,7 +192,7 @@ public class Servlet extends HttpServlet {
 					request.setAttribute(jspParamNameResult, risultato);
 					request.setAttribute("username", utente);
 					try {
-						insert(request.getMethod(), a, b, risultato, date, sessione, id_utente);
+						insert(request.getMethod(), a, b, risultato, date, session_id, id_utente);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
