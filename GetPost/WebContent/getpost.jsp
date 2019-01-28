@@ -14,7 +14,7 @@
 
 Questa è la pagina GetPost!
 
-<h1>Benvenuto, il tuo id utente è: ${id}</h1>
+<h1>Bentornato ${username} , il tuo id utente è: ${id}</h1>
 
 <h2>La data odierna è :${data} ed hai usato il metodo ${metodo}</h2>
 
@@ -38,13 +38,17 @@ Inserire parametro con il metodo POST :
 </c:if>
 <br>
 <c:if test = "${not empty arraylist }">
-	La lista dei risultati precedenti:</p>
+	<p>La lista dei risultati precedenti:</p>
 <c:forEach var = "Output" items = "${arraylist}">
-	<c:out value = "${Output.risultato}"></c:out> <!-- usa il metodo getRisultato() per ritornare il valore  -->
+	<c:out value = "${Output.add1}"></c:out>
+	+&nbsp;<c:out value = "${Output.add2}"></c:out>
+	=&nbsp;<c:out value = "${Output.risultato}"></c:out> <!-- usa il metodo getRisultato() per ritornare il valore  -->
 	<c:out value = "${Output.data}"></c:out>
 	<c:out value = "${Output.metodo}"></c:out>
 	<br>
-</c:forEach></c:if>
+</c:forEach></c:if> 
+
+
 
 <h2>Il parametro inserito vale: ${param }</h2>
 

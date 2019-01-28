@@ -1,20 +1,39 @@
 package servlet;
 
-public class Output {
-	
+public class Risultati 
+{	
+	public String add1;
+	public String add2;
 	public String risultato;
 	public String data;
 	public String metodo;
+	public int id_utente;
 
-	public Output(String risultato, String data, String metodo ) //costruttore
-	{	
-		this.risultato = risultato;
-		this.data = data;
-		this.metodo = metodo;
-	
+
+	public int getId_utente() {
+		return id_utente;
 	}
 
+	public void setId_utente(int id_utente) {
+		this.id_utente = id_utente;
+	}
 
+	public String getAdd1() {
+		return add1;
+	}
+
+	public void setAdd1(String add1) {
+		this.add1 = add1;
+	}
+	
+	public String getAdd2() {
+		return add2;
+	}
+
+	public void setAdd2(String add2) {
+		this.add2 = add2;
+	}
+	
 	public String getRisultato() {
 		return risultato;
 	}
@@ -41,3 +60,5 @@ public class Output {
 	
 	
 }
+
+
