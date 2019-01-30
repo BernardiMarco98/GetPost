@@ -162,8 +162,8 @@ public class Servlet extends HttpServlet {
 			} else {
 				// se l'utente esegue il logout
 				if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
-					// viene rimosso l'utente dalla sessione
-					session.removeAttribute("utente");
+					// viene invalidata la sessione
+					session.invalidate();
 					// la pagina jsp di login,stamperà un messaggio di logout
 					request.setAttribute("logout_message", "Logout effettuato!");
 					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
