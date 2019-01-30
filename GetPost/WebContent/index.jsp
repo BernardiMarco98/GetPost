@@ -7,7 +7,8 @@
 <title>Login page</title>
 </head>
 <body>
-${error}
+${logout_message}
+
 <h1>Benvenuto nella pagina di login!</h1>
 
 <h2>Inserisci i tuoi dati per accedere</h2>
