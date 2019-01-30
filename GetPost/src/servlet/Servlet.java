@@ -1,7 +1,6 @@
 package servlet;
 
 import java.io.IOException;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -161,55 +160,65 @@ public class Servlet extends HttpServlet {
 					dispatcher.forward(request, response);
 				}
 			} else {
+				// se l'utente esegue il logout
+				if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
+					// viene invalidata la sessione
+					session.invalidate();
+					// la pagina jsp di login,stamperà un messaggio di logout
+					request.setAttribute("logout_message", "Logout effettuato!");
+					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+					dispatcher.forward(request, response);
 
-				request.setAttribute(jspParamUserId, session_id);
-				String utente = session_user.getUsername();
-				Integer id_utente = session_user.getId_utente();
-				System.out.print(id_utente);
-				ArrayList<Risultati> risultati = null;
-				String a = (String) request.getParameter(reqParamNameVal1);
-				String b = (String) request.getParameter(reqParamNameVal2);
-				String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
-				request.setAttribute("data", date);
-				request.setAttribute("metodo", request.getMethod());
-
-				if ((a == null) && (b == null)) {
-					request.setAttribute(jspParamNameColor, coloreHome);
-					request.setAttribute("username", utente);
-					try {
-						risultati = queryResult(id_utente);
-						request.setAttribute("arraylist", risultati);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 				} else {
-					if (request.getMethod().equals("GET"))
-						request.setAttribute(jspParamNameColor, "yellow");
-					else
-						request.setAttribute(jspParamNameColor, "red");
-					String risultato = operazioni(a, b);
-					request.setAttribute(jspParamNameResult, risultato);
-					request.setAttribute("username", utente);
-					try {
-						insert(request.getMethod(), a, b, risultato, date, session_id, id_utente);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					try {
-						risultati = queryResult(id_utente);
-						request.setAttribute("arraylist", risultati);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					// se l'utente non fa il logout, eseguirà le operazioni
+					request.setAttribute(jspParamUserId, session_id);
+					String utente = session_user.getUsername();
+					Integer id_utente = session_user.getId_utente();
+					System.out.print(id_utente);
+					ArrayList<Risultati> risultati = null;
+					String a = (String) request.getParameter(reqParamNameVal1);
+					String b = (String) request.getParameter(reqParamNameVal2);
+					String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+					request.setAttribute("data", date);
+					request.setAttribute("metodo", request.getMethod());
 
+					if ((a == null) && (b == null)) {
+						request.setAttribute(jspParamNameColor, coloreHome);
+						request.setAttribute("username", utente);
+						try {
+							risultati = queryResult(id_utente);
+							request.setAttribute("arraylist", risultati);
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					} else {
+						if (request.getMethod().equals("GET"))
+							request.setAttribute(jspParamNameColor, "yellow");
+						else
+							request.setAttribute(jspParamNameColor, "red");
+						String risultato = operazioni(a, b);
+						request.setAttribute(jspParamNameResult, risultato);
+						request.setAttribute("username", utente);
+						try {
+							insert(request.getMethod(), a, b, risultato, date, session_id, id_utente);
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						try {
+							risultati = queryResult(id_utente);
+							request.setAttribute("arraylist", risultati);
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
+					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+					dispatcher.forward(request, response);
 				}
-				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
-				dispatcher.forward(request, response);
 			}
-
 		}
 	}
 

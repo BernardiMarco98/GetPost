@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,7 +8,11 @@
 <title>Login page</title>
 </head>
 <body>
-${error}
+<c:if test = "${not empty logout_message}">
+<font color="red">${logout_message}</font>	
+</c:if>
+<br>
+
 <h1>Benvenuto nella pagina di login!</h1>
 
 <h2>Inserisci i tuoi dati per accedere</h2>
