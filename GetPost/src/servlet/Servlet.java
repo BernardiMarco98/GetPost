@@ -16,6 +16,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -106,47 +107,116 @@ public class Servlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
 		// quando sei qui, sai di essere in doGet()
-		HttpSession session = request.getSession();
-		String session_id = session.getId();
 
-		if (session.isNew()) {
-			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-			dispatcher.forward(request, response);
+		Cookie user[] = request.getCookies();
+
+		// se non ci sono cookies o sono scaduti,eseguo la login
+		if (user == null) {
+			String username = request.getParameter("username");
+			String password = request.getParameter("password");
+
+			Utente utente = null;
+			if ((utente = login(username, password)) != null) {
+				HttpSession session = request.getSession();
+				String session_id = session.getId();
+
+				session.setAttribute("utente", utente);
+				request.setAttribute(jspParamNameColor, coloreHome);
+				request.setAttribute("username", utente.getUsername());
+				request.setAttribute(jspParamUserId, session_id);
+				ArrayList<Risultati> risultati = null;
+				String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+				request.setAttribute("data", date);
+				request.setAttribute("metodo", request.getMethod());
+				try {
+					risultati = queryResult(utente.getId_utente());
+					request.setAttribute("arraylist", risultati);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// creo e invio i cookies
+				Cookie cookieUsername = new Cookie("username", username);
+				Cookie cookiePassword = new Cookie("password", password);
+				Cookie cookieSession = new Cookie("session", session_id);
+				Cookie cookieId = new Cookie("id", String.valueOf(utente.getId_utente()));
+				cookieUsername.setMaxAge(300);
+				cookiePassword.setMaxAge(300);
+				cookieSession.setMaxAge(300);
+				cookieId.setMaxAge(300);
+				response.addCookie(cookieUsername);
+				response.addCookie(cookiePassword);
+				response.addCookie(cookieSession);
+				response.addCookie(cookieId);
+
+				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+				dispatcher.forward(request, response);
+			} else {
+				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+				dispatcher.forward(request, response);
+			}
 		} else {
+			// se l'utente esegue il logout
+			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
+				// la pagina jsp di login,stamperà un messaggio di logout
+				// elimino i cookie
+				Cookie cookieUsername = new Cookie("username", "");
+				Cookie cookiePassword = new Cookie("password", "");
+				Cookie cookieSession = new Cookie("session", "");
+				Cookie cookieId = new Cookie("id", "");
+				cookieUsername.setMaxAge(0);
+				cookiePassword.setMaxAge(0);
+				cookieSession.setMaxAge(0);
+				cookieId.setMaxAge(0);
+				response.addCookie(cookieUsername);
+				response.addCookie(cookiePassword);
+				response.addCookie(cookieSession);
+				response.addCookie(cookieId);
+				request.setAttribute("logout_message", "Logout effettuato!");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+				dispatcher.forward(request, response);
 
-			Utente session_user;
-			session_user = (Utente) session.getAttribute("utente");
+			} else {
+				// se l'utente non fa il logout, eseguirà le operazioni
+				String session_id = user[2].getValue();
+				request.setAttribute(jspParamUserId, session_id);
+				String utente = user[0].getValue();
+				Integer id_utente = Integer.parseInt(user[3].getValue());
+				System.out.print(id_utente);
+				ArrayList<Risultati> risultati = null;
+				String a = (String) request.getParameter(reqParamNameVal1);
+				String b = (String) request.getParameter(reqParamNameVal2);
+				String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+				request.setAttribute("data", date);
+				request.setAttribute("metodo", request.getMethod());
 
-			// all'inizio la request ti porta qui
-
-			if (session_user == null) {
-
-				// qui desumi che l'utente non e' loggato
-				// e quindi leggi i paramtri usernae/pwd per verificare
-				String username = request.getParameter("username");
-				String password = request.getParameter("password");
-
-				// qui verifichi
-				Utente utente = login(username, password);
-
-				// il risultato puo' essere:
-				// - credenziali non valide -> utente = null
-				// - credenziali valide -> utente not null
-
-				if (utente != null) {
-					// qui , se l'utente e' stato autenticato, salvi i suoi dati in sessione
-					session.setAttribute("utente", utente);
+				if ((a == null) && (b == null)) {
 					request.setAttribute(jspParamNameColor, coloreHome);
-					request.setAttribute("username", utente.getUsername());
-					request.setAttribute(jspParamUserId, session_id);
-					ArrayList<Risultati> risultati = null;
-					String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
-					request.setAttribute("data", date);
-					request.setAttribute("metodo", request.getMethod());
+					request.setAttribute("username", utente);
 					try {
-						risultati = queryResult(utente.getId_utente());
+						risultati = queryResult(id_utente);
+						request.setAttribute("arraylist", risultati);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					if (request.getMethod().equals("GET"))
+						request.setAttribute(jspParamNameColor, "yellow");
+					else
+						request.setAttribute(jspParamNameColor, "red");
+					String risultato = operazioni(a, b);
+					request.setAttribute(jspParamNameResult, risultato);
+					request.setAttribute("username", utente);
+					try {
+						insert(request.getMethod(), a, b, risultato, date, session_id, id_utente);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						risultati = queryResult(id_utente);
 						request.setAttribute("arraylist", risultati);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
@@ -154,70 +224,9 @@ public class Servlet extends HttpServlet {
 					}
 					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 					dispatcher.forward(request, response);
-
-				} else {
-					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-					dispatcher.forward(request, response);
 				}
-			} else {
-				// se l'utente esegue il logout
-				if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
-					// viene invalidata la sessione
-					session.invalidate();
-					// la pagina jsp di login,stamperà un messaggio di logout
-					request.setAttribute("logout_message", "Logout effettuato!");
-					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-					dispatcher.forward(request, response);
-
-				} else {
-					// se l'utente non fa il logout, eseguirà le operazioni
-					request.setAttribute(jspParamUserId, session_id);
-					String utente = session_user.getUsername();
-					Integer id_utente = session_user.getId_utente();
-					System.out.print(id_utente);
-					ArrayList<Risultati> risultati = null;
-					String a = (String) request.getParameter(reqParamNameVal1);
-					String b = (String) request.getParameter(reqParamNameVal2);
-					String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
-					request.setAttribute("data", date);
-					request.setAttribute("metodo", request.getMethod());
-
-					if ((a == null) && (b == null)) {
-						request.setAttribute(jspParamNameColor, coloreHome);
-						request.setAttribute("username", utente);
-						try {
-							risultati = queryResult(id_utente);
-							request.setAttribute("arraylist", risultati);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					} else {
-						if (request.getMethod().equals("GET"))
-							request.setAttribute(jspParamNameColor, "yellow");
-						else
-							request.setAttribute(jspParamNameColor, "red");
-						String risultato = operazioni(a, b);
-						request.setAttribute(jspParamNameResult, risultato);
-						request.setAttribute("username", utente);
-						try {
-							insert(request.getMethod(), a, b, risultato, date, session_id, id_utente);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						try {
-							risultati = queryResult(id_utente);
-							request.setAttribute("arraylist", risultati);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-					}
-					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
-					dispatcher.forward(request, response);
-				}
+				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+				dispatcher.forward(request, response);
 			}
 		}
 	}
