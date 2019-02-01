@@ -109,10 +109,10 @@ public class Servlet extends HttpServlet {
 			throws ServletException, IOException {
 		// quando sei qui, sai di essere in doGet()
 
-		Cookie user[] = request.getCookies();
+		Cookie userCookies[] = request.getCookies();
 
 		// se non ci sono cookies o sono scaduti,eseguo la login
-		if (user == null) {
+		if (userCookies == null || userCookies.length ==1) {
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 
@@ -179,10 +179,10 @@ public class Servlet extends HttpServlet {
 
 			} else {
 				// se l'utente non fa il logout, eseguirà le operazioni
-				String session_id = user[2].getValue();
+				String session_id = userCookies[0].getValue();
 				request.setAttribute(jspParamUserId, session_id);
-				String utente = user[0].getValue();
-				Integer id_utente = Integer.parseInt(user[3].getValue());
+				String utente = userCookies[4].getValue();
+				Integer id_utente = Integer.parseInt(userCookies[0].getValue());
 				System.out.print(id_utente);
 				ArrayList<Risultati> risultati = null;
 				String a = (String) request.getParameter(reqParamNameVal1);
