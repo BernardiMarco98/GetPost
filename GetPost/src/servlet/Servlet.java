@@ -112,7 +112,7 @@ public class Servlet extends HttpServlet {
 		Cookie userCookies[] = request.getCookies();
 
 		// se non ci sono cookies o sono scaduti,eseguo la login
-		if (userCookies == null || userCookies.length ==1) {
+		if (userCookies == null || userCookies.length == 1) {
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 
@@ -184,7 +184,7 @@ public class Servlet extends HttpServlet {
 				String utente = getCookie(userCookies, "username").getValue();
 				Integer id_utente = Integer.parseInt(getCookie(userCookies, "id").getValue());
 				System.out.print(id_utente);
-				
+
 				ArrayList<Risultati> risultati = null;
 				String a = (String) request.getParameter(reqParamNameVal1);
 				String b = (String) request.getParameter(reqParamNameVal2);
@@ -260,9 +260,8 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
-	//funzione che ritorna il cookie che cerco
-	public Cookie getCookie(Cookie cookies[], String nameOfCookie)
-	{
+	// funzione che ritorna il cookie che cerco
+	public Cookie getCookie(Cookie cookies[], String nameOfCookie) {
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals(nameOfCookie)) {
@@ -272,6 +271,7 @@ public class Servlet extends HttpServlet {
 		}
 		return null;
 	}
+
 	// funzione che esegue l'insert dentro risultati per aggiungere l'operazione
 	public void insert(String nomeMetodo, String a, String b, String res, String date, String session,
 			Integer id_utente) throws SQLException {
