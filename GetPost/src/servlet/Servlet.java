@@ -110,18 +110,23 @@ public class Servlet extends HttpServlet {
 		// quando sei qui, sai di essere in doGet()
 
 		Cookie userCookies[] = request.getCookies();
+		HttpSession session = request.getSession();
+		String session_id = session.getId();
 
+		if (session.isNew()) {
+			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+			dispatcher.forward(request, response);
+			return;
+		}
 		// se non ci sono cookies o sono scaduti,eseguo la login
-		if (userCookies == null || userCookies.length == 1) {
+		else if (getCookie(userCookies, "usernameServletGetPost") == null) {
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 
 			Utente utente = null;
 			if ((utente = login(username, password)) != null) {
-				HttpSession session = request.getSession();
-				String session_id = session.getId();
 
-				session.setAttribute("utente", utente);
+				session.setAttribute("utenteSessione", utente);
 				request.setAttribute(jspParamNameColor, coloreHome);
 				request.setAttribute("username", utente.getUsername());
 				request.setAttribute(jspParamUserId, session_id);
@@ -137,53 +142,42 @@ public class Servlet extends HttpServlet {
 					e.printStackTrace();
 				}
 				// creo e invio i cookies
-				Cookie cookieUsername = new Cookie("username", username);
-				Cookie cookiePassword = new Cookie("password", password);
-				Cookie cookieSession = new Cookie("session", session_id);
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 				Cookie cookieId = new Cookie("id", String.valueOf(utente.getId_utente()));
 				cookieUsername.setMaxAge(300);
-				cookiePassword.setMaxAge(300);
-				cookieSession.setMaxAge(300);
 				cookieId.setMaxAge(300);
 				response.addCookie(cookieUsername);
-				response.addCookie(cookiePassword);
-				response.addCookie(cookieSession);
 				response.addCookie(cookieId);
 
 				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 				dispatcher.forward(request, response);
+				return;
 			} else {
 				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 				dispatcher.forward(request, response);
+				return;
 			}
 		} else {
 			// se l'utente esegue il logout
 			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 				// la pagina jsp di login,stamperà un messaggio di logout
 				// elimino i cookie
-				Cookie cookieUsername = new Cookie("username", "");
-				Cookie cookiePassword = new Cookie("password", "");
-				Cookie cookieSession = new Cookie("session", "");
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
 				Cookie cookieId = new Cookie("id", "");
 				cookieUsername.setMaxAge(0);
-				cookiePassword.setMaxAge(0);
-				cookieSession.setMaxAge(0);
 				cookieId.setMaxAge(0);
 				response.addCookie(cookieUsername);
-				response.addCookie(cookiePassword);
-				response.addCookie(cookieSession);
 				response.addCookie(cookieId);
 				request.setAttribute("logout_message", "Logout effettuato!");
 				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 				dispatcher.forward(request, response);
+				return;
 
 			} else {
 				// se l'utente non fa il logout, eseguirà le operazioni
-				String session_id = getCookie(userCookies, "session").getValue();
 				request.setAttribute(jspParamUserId, session_id);
-				String utente = getCookie(userCookies, "username").getValue();
+				String utente = getCookie(userCookies, "usernameServletGetPost").getValue();
 				Integer id_utente = Integer.parseInt(getCookie(userCookies, "id").getValue());
-				System.out.print(id_utente);
 
 				ArrayList<Risultati> risultati = null;
 				String a = (String) request.getParameter(reqParamNameVal1);
@@ -225,9 +219,11 @@ public class Servlet extends HttpServlet {
 					}
 					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 					dispatcher.forward(request, response);
+					return;
 				}
 				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 				dispatcher.forward(request, response);
+				return;
 			}
 		}
 	}
