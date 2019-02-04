@@ -179,11 +179,12 @@ public class Servlet extends HttpServlet {
 
 			} else {
 				// se l'utente non fa il logout, eseguirà le operazioni
-				String session_id = userCookies[0].getValue();
+				String session_id = getCookie(userCookies, "session").getValue();
 				request.setAttribute(jspParamUserId, session_id);
-				String utente = userCookies[4].getValue();
-				Integer id_utente = Integer.parseInt(userCookies[0].getValue());
+				String utente = getCookie(userCookies, "username").getValue();
+				Integer id_utente = Integer.parseInt(getCookie(userCookies, "id").getValue());
 				System.out.print(id_utente);
+				
 				ArrayList<Risultati> risultati = null;
 				String a = (String) request.getParameter(reqParamNameVal1);
 				String b = (String) request.getParameter(reqParamNameVal2);
@@ -259,6 +260,18 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
+	//funzione che ritorna il cookie che cerco
+	public Cookie getCookie(Cookie cookies[], String nameOfCookie)
+	{
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals(nameOfCookie)) {
+					return cookie;
+				}
+			}
+		}
+		return null;
+	}
 	// funzione che esegue l'insert dentro risultati per aggiungere l'operazione
 	public void insert(String nomeMetodo, String a, String b, String res, String date, String session,
 			Integer id_utente) throws SQLException {
