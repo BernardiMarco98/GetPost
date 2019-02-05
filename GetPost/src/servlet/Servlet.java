@@ -113,13 +113,8 @@ public class Servlet extends HttpServlet {
 		HttpSession session = request.getSession();
 		String session_id = session.getId();
 
-		if (session.isNew()) {
-			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-			dispatcher.forward(request, response);
-			return;
-		}
 		// se non ci sono cookies o sono scaduti,eseguo la login
-		else if (getCookie(userCookies, "usernameServletGetPost") == null) {
+		if (getCookie(userCookies, "usernameServletGetPost") == null) {
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 
@@ -141,13 +136,17 @@ public class Servlet extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				// creo e invio i cookies
-				Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
-				Cookie cookieId = new Cookie("id", String.valueOf(utente.getId_utente()));
+				// creo e invio il cookie
+				String cookieValue = getAlphaNumericString(25);
+				try {
+					insertCookie(cookieValue, utente.getId_utente());
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", cookieValue);
 				cookieUsername.setMaxAge(300);
-				cookieId.setMaxAge(300);
 				response.addCookie(cookieUsername);
-				response.addCookie(cookieId);
 
 				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 				dispatcher.forward(request, response);
@@ -163,11 +162,8 @@ public class Servlet extends HttpServlet {
 				// la pagina jsp di login,stamperà un messaggio di logout
 				// elimino i cookie
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
-				Cookie cookieId = new Cookie("id", "");
 				cookieUsername.setMaxAge(0);
-				cookieId.setMaxAge(0);
 				response.addCookie(cookieUsername);
-				response.addCookie(cookieId);
 				request.setAttribute("logout_message", "Logout effettuato!");
 				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 				dispatcher.forward(request, response);
@@ -176,8 +172,9 @@ public class Servlet extends HttpServlet {
 			} else {
 				// se l'utente non fa il logout, eseguirà le operazioni
 				request.setAttribute(jspParamUserId, session_id);
-				String utente = getCookie(userCookies, "usernameServletGetPost").getValue();
-				Integer id_utente = Integer.parseInt(getCookie(userCookies, "id").getValue());
+				Utente userLogged = getUserCookie(getCookie(userCookies, "usernameServletGetPost").getValue());
+				String utente = userLogged.getUsername();
+				Integer id_utente = userLogged.getId_utente();
 
 				ArrayList<Risultati> risultati = null;
 				String a = (String) request.getParameter(reqParamNameVal1);
@@ -256,6 +253,35 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
+	// funzione che genera una stringa casuale di lunghezza n
+	static String getAlphaNumericString(int n) {
+
+		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
+		StringBuilder sb = new StringBuilder(n);
+
+		for (int i = 0; i < n; i++) {
+			int index = (int) (AlphaNumericString.length() * Math.random());
+			sb.append(AlphaNumericString.charAt(index));
+		}
+
+		return sb.toString();
+	}
+
+	// funzione che inserisce il cookie in database
+	public void insertCookie(String cookieValue, int id_utente) throws SQLException {
+		try {
+			PreparedStatement ps = con.prepareStatement("INSERT INTO cookies(id_utente, value) VALUES(?, ?)");
+
+			// eseguo l'insert con i dati passati come parametri della funzione
+			ps.setInt(1, id_utente);
+			ps.setString(2, cookieValue);
+
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	// funzione che ritorna il cookie che cerco
 	public Cookie getCookie(Cookie cookies[], String nameOfCookie) {
 		if (cookies != null) {
@@ -266,6 +292,35 @@ public class Servlet extends HttpServlet {
 			}
 		}
 		return null;
+	}
+
+	// funzione che mi ritorna i dati dell'utetente loggato in base al cookie
+	public Utente getUserCookie(String cookieValue) {
+		ResultSet rs = null;
+		Utente utente = new Utente();
+
+		try {
+			// faccio una query per vedere se i dati inseriti sono corretti
+			PreparedStatement ps = con.prepareStatement(
+					"select username, utente.id_utente from utente, cookies where utente.id_utente=cookies.id_utente and cookies.value=?");
+
+			ps.setString(1, cookieValue);
+			rs = ps.executeQuery();
+			rs.next();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+
+			utente.setUsername(rs.getString("username"));
+			utente.setId_utente(rs.getInt("id_utente"));
+		} catch (SQLException e) {
+
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return utente;
 	}
 
 	// funzione che esegue l'insert dentro risultati per aggiungere l'operazione
