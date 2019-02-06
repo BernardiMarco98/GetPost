@@ -112,9 +112,10 @@ public class Servlet extends HttpServlet {
 		Cookie userCookies[] = request.getCookies();
 		HttpSession session = request.getSession();
 		String session_id = session.getId();
+		Utente session_user = (Utente) session.getAttribute("utenteSessione");
 
-		// se non ci sono cookies o sono scaduti,eseguo la login
-		if (getCookie(userCookies, "usernameServletGetPost") == null) {
+		// se la sessione è vuota e non c'è un cookie valido, verrà effettuato il login
+		if (session_user == null && getCookie(userCookies, "usernameServletGetPost") == null) {
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 
@@ -136,15 +137,7 @@ public class Servlet extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				// creo e invio il cookie
-				String cookieValue = getAlphaNumericString(25);
-				try {
-					insertCookie(cookieValue, utente.getId_utente());
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				Cookie cookieUsername = new Cookie("usernameServletGetPost", cookieValue);
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente.getUsername());
 				cookieUsername.setMaxAge(300);
 				response.addCookie(cookieUsername);
 
@@ -156,14 +149,127 @@ public class Servlet extends HttpServlet {
 				dispatcher.forward(request, response);
 				return;
 			}
-		} else {
-			// se l'utente esegue il logout
+		}
+		// se la sessione è vuota ma c'è un cookie valido, verrà eseguito un login
+		// silenzioso ed eseguite le operazioni
+		else if (session_user == null && getCookie(userCookies, "usernameServletGetPost") != null) {
+			session.setAttribute("utenteSessione",
+					logByCookie(getCookie(userCookies, "usernameServletGetPost").getValue()));
+
+			request.setAttribute(jspParamUserId, session_id);
+			Utente userLogged = (Utente) session.getAttribute("utenteSessione");
+			String usernameUtente = userLogged.getUsername();
+			Integer id_utente = userLogged.getId_utente();
+
+			ArrayList<Risultati> risultati = null;
+			String a = (String) request.getParameter(reqParamNameVal1);
+			String b = (String) request.getParameter(reqParamNameVal2);
+			String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+			request.setAttribute("data", date);
+			request.setAttribute("metodo", request.getMethod());
+
+			if ((a == null) && (b == null)) {
+				request.setAttribute(jspParamNameColor, coloreHome);
+				request.setAttribute("username", usernameUtente);
+				try {
+					risultati = queryResult(id_utente);
+					request.setAttribute("arraylist", risultati);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				if (request.getMethod().equals("GET"))
+					request.setAttribute(jspParamNameColor, "yellow");
+				else
+					request.setAttribute(jspParamNameColor, "red");
+				String risultato = operazioni(a, b);
+				request.setAttribute(jspParamNameResult, risultato);
+				request.setAttribute("username", usernameUtente);
+				try {
+					insert(request.getMethod(), a, b, risultato, date, session_id, id_utente);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					risultati = queryResult(id_utente);
+					request.setAttribute("arraylist", risultati);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+				dispatcher.forward(request, response);
+				return;
+			}
+			RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+			dispatcher.forward(request, response);
+			return;
+		}
+		// se la sessione è piena ma non c'è un cookie valido, creo il cookie ed eseguo
+		// le operazioni
+		else if (session_user != null && getCookie(userCookies, "usernameServletGetPost") == null) {
+
+			Utente userLogged = (Utente) session.getAttribute("utenteSessione");
+			request.setAttribute(jspParamUserId, session_id);
+			String usernameUtente = userLogged.getUsername();
+			Integer id_utente = userLogged.getId_utente();
+
+			ArrayList<Risultati> risultati = null;
+			String a = (String) request.getParameter(reqParamNameVal1);
+			String b = (String) request.getParameter(reqParamNameVal2);
+			String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+			request.setAttribute("data", date);
+			request.setAttribute("metodo", request.getMethod());
+
+			if ((a == null) && (b == null)) {
+				request.setAttribute(jspParamNameColor, coloreHome);
+				request.setAttribute("username", usernameUtente);
+				try {
+					risultati = queryResult(id_utente);
+					request.setAttribute("arraylist", risultati);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				if (request.getMethod().equals("GET"))
+					request.setAttribute(jspParamNameColor, "yellow");
+				else
+					request.setAttribute(jspParamNameColor, "red");
+				String risultato = operazioni(a, b);
+				request.setAttribute(jspParamNameResult, risultato);
+				request.setAttribute("username", usernameUtente);
+				try {
+					insert(request.getMethod(), a, b, risultato, date, session_id, id_utente);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					risultati = queryResult(id_utente);
+					request.setAttribute("arraylist", risultati);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", userLogged.getUsername());
+				cookieUsername.setMaxAge(300);
+				response.addCookie(cookieUsername);
+				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+				dispatcher.forward(request, response);
+				return;
+			}
+
+		} else if (session_user != null && getCookie(userCookies, "usernameServletGetPost") != null) {
 			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 				// la pagina jsp di login,stamperà un messaggio di logout
 				// elimino i cookie
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
 				cookieUsername.setMaxAge(0);
 				response.addCookie(cookieUsername);
+				session.invalidate();
 				request.setAttribute("logout_message", "Logout effettuato!");
 				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 				dispatcher.forward(request, response);
@@ -172,7 +278,7 @@ public class Servlet extends HttpServlet {
 			} else {
 				// se l'utente non fa il logout, eseguirà le operazioni
 				request.setAttribute(jspParamUserId, session_id);
-				Utente userLogged = getUserCookie(getCookie(userCookies, "usernameServletGetPost").getValue());
+				Utente userLogged = (Utente) session.getAttribute("utenteSessione");
 				String utente = userLogged.getUsername();
 				Integer id_utente = userLogged.getId_utente();
 
@@ -223,6 +329,7 @@ public class Servlet extends HttpServlet {
 				return;
 			}
 		}
+
 	}
 
 	/**
@@ -253,35 +360,6 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
-	// funzione che genera una stringa casuale di lunghezza n
-	static String getAlphaNumericString(int n) {
-
-		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
-		StringBuilder sb = new StringBuilder(n);
-
-		for (int i = 0; i < n; i++) {
-			int index = (int) (AlphaNumericString.length() * Math.random());
-			sb.append(AlphaNumericString.charAt(index));
-		}
-
-		return sb.toString();
-	}
-
-	// funzione che inserisce il cookie in database
-	public void insertCookie(String cookieValue, int id_utente) throws SQLException {
-		try {
-			PreparedStatement ps = con.prepareStatement("INSERT INTO cookies(id_utente, value) VALUES(?, ?)");
-
-			// eseguo l'insert con i dati passati come parametri della funzione
-			ps.setInt(1, id_utente);
-			ps.setString(2, cookieValue);
-
-			ps.executeUpdate();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	// funzione che ritorna il cookie che cerco
 	public Cookie getCookie(Cookie cookies[], String nameOfCookie) {
 		if (cookies != null) {
@@ -294,32 +372,34 @@ public class Servlet extends HttpServlet {
 		return null;
 	}
 
-	// funzione che mi ritorna i dati dell'utetente loggato in base al cookie
-	public Utente getUserCookie(String cookieValue) {
+	// funzione che ritorna l'utente con lo stesso username del cookie
+	public Utente logByCookie(String username) {
 		ResultSet rs = null;
 		Utente utente = new Utente();
 
 		try {
-			// faccio una query per vedere se i dati inseriti sono corretti
-			PreparedStatement ps = con.prepareStatement(
-					"select username, utente.id_utente from utente, cookies where utente.id_utente=cookies.id_utente and cookies.value=?");
+			PreparedStatement ps = con.prepareStatement("select * from utente where username=?");
 
-			ps.setString(1, cookieValue);
+			ps.setString(1, username);
 			rs = ps.executeQuery();
 			rs.next();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		// metto dentro utente i dati della riga della tabella
 		try {
 
 			utente.setUsername(rs.getString("username"));
+			utente.setPassword(rs.getString("password"));
+			utente.setNome(rs.getString("nome"));
+			utente.setCognome(rs.getString("cognome"));
 			utente.setId_utente(rs.getInt("id_utente"));
 		} catch (SQLException e) {
 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		return utente;
 	}
 
