@@ -126,7 +126,9 @@ public class Servlet extends HttpServlet {
 				Integer id_utente = utente.getId_utente();
 				session.setAttribute("utenteSessione", utente);
 
-				setInterface(request, username, session_id, id_utente);
+				request.setAttribute(jspParamUserId, session_id);
+
+				setInterface(request, username, null, id_utente);
 
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 				cookieUsername.setMaxAge(300);
@@ -156,32 +158,20 @@ public class Servlet extends HttpServlet {
 				dispatcher.forward(request, response);
 				return;
 			}
+
 			session.setAttribute("utenteSessione", userLogged);
 			request.setAttribute(jspParamUserId, session_id);
 			String usernameUtente = userLogged.getUsername();
 			Integer id_utente = userLogged.getId_utente();
-			setInterface(request, usernameUtente, session_id, id_utente);
+
+			setInterface(request, usernameUtente, null, id_utente);
 
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 			dispatcher.forward(request, response);
 			return;
 
-		}
-		// se la sessione è piena ma non c'è un cookie valido, eseguo le operazioni
-		else if (session_user != null && userCookieLogin == null) {
-
-			Utente userLogged = (Utente) session.getAttribute("utenteSessione");
-			request.setAttribute(jspParamUserId, session_id);
-			String usernameUtente = userLogged.getUsername();
-			Integer id_utente = userLogged.getId_utente();
-
-			setInterface(request, usernameUtente, session_id, id_utente);
-
-			RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
-			dispatcher.forward(request, response);
-			return;
-
-		} else if (session_user != null && userCookieLogin != null) {
+			// se la sessione è piena eseguo le operazioni
+		} else {
 			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 				// la pagina jsp di login,stamperà un messaggio di logout
 				// elimino i cookie
@@ -202,6 +192,10 @@ public class Servlet extends HttpServlet {
 				Integer id_utente = userLogged.getId_utente();
 
 				setInterface(request, utente, session_id, id_utente);
+
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
+				cookieUsername.setMaxAge(300);
+				response.addCookie(cookieUsername);
 
 				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 				dispatcher.forward(request, response);
@@ -241,44 +235,40 @@ public class Servlet extends HttpServlet {
 	// funzione che imposta il contenuto della pagina
 	public void setInterface(HttpServletRequest request, String username, String sessione, Integer id) {
 		ArrayList<Risultati> risultati = null;
-		String addendo1 = (String) request.getParameter(reqParamNameVal1);
-		String addendo2 = (String) request.getParameter(reqParamNameVal2);
 		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
 		String metodo = request.getMethod();
 		request.setAttribute("data", date);
 		request.setAttribute("metodo", metodo);
+		request.setAttribute("username", username);
 
-		if ((addendo1 == null) && (addendo2 == null)) {
-			request.setAttribute(jspParamNameColor, coloreHome);
-			request.setAttribute("username", username);
-			try {
-				risultati = queryResult(id);
-				request.setAttribute("arraylist", risultati);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if (sessione != null) {
+			String addendo1 = (String) request.getParameter(reqParamNameVal1);
+			String addendo2 = (String) request.getParameter(reqParamNameVal2);
+
+			if ((addendo1 == null) && (addendo2 == null)) {
+				request.setAttribute(jspParamNameColor, coloreHome);
+			} else {
+				if (request.getMethod().equals("GET"))
+					request.setAttribute(jspParamNameColor, "yellow");
+				else
+					request.setAttribute(jspParamNameColor, "red");
+				String risultato = operazioni(addendo1, addendo2);
+				request.setAttribute(jspParamNameResult, risultato);
+				try {
+					insert(metodo, addendo1, addendo2, risultato, date, sessione, id);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 			}
-		} else {
-			if (request.getMethod().equals("GET"))
-				request.setAttribute(jspParamNameColor, "yellow");
-			else
-				request.setAttribute(jspParamNameColor, "red");
-			String risultato = operazioni(addendo1, addendo2);
-			request.setAttribute(jspParamNameResult, risultato);
-			request.setAttribute("username", username);
-			try {
-				insert(metodo, addendo1, addendo2, risultato, date, sessione, id);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			try {
-				risultati = queryResult(id);
-				request.setAttribute("arraylist", risultati);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		}
+		try {
+			risultati = queryResult(id);
+			request.setAttribute("arraylist", risultati);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
