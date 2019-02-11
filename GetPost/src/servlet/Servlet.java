@@ -117,22 +117,17 @@ public class Servlet extends HttpServlet {
 
 		// se la sessione è vuota e non c'è un cookie valido, verrà effettuato il login
 		if (session_user == null && userCookieLogin == null) {
-			if(session.isNew())
-			{
-				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-				dispatcher.forward(request, response);
-				return;
-			}
+			if (!session.isNew()) {
+				System.out.println("lettura credenziali login");
+				Utente utente = null;
+				String username = request.getParameter("username");
+				String password = request.getParameter("password");
 
-			System.out.println("lettura credenziali login");
-			Utente utente = null;
-			String username = request.getParameter("username");
-			String password = request.getParameter("password");
-
-
-			if(username != null && password != null) {
-				if ((utente = login(username, password)) != null) {
-
+				if ((username == null && password == null) || (utente = login(username, password)) == null) {
+					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+					dispatcher.forward(request, response);
+					return;
+				} else {
 					Integer id_utente = utente.getId_utente();
 					session.setAttribute("utenteSessione", utente);
 
@@ -147,20 +142,15 @@ public class Servlet extends HttpServlet {
 					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 					dispatcher.forward(request, response);
 					return;
-				} else {
-					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-					dispatcher.forward(request, response);
-					return;
 				}
-			}
-			else {
+			} else {
 				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 				dispatcher.forward(request, response);
 				return;
 			}
 		}
 		// se la sessione è vuota ma c'è un cookie valido, verrà eseguito un login
-		// silenzioso 
+		// silenzioso
 		else if (session_user == null && userCookieLogin != null) {
 
 			Utente userLogged = login(userCookieLogin.getValue(), null);
