@@ -16,6 +16,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -106,118 +107,91 @@ public class Servlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
 		// quando sei qui, sai di essere in doGet()
+
+		Cookie userCookies[] = request.getCookies();
+		Cookie userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
 		HttpSession session = request.getSession();
 		String session_id = session.getId();
+		Utente session_user = (Utente) session.getAttribute("utenteSessione");
 
-		if (session.isNew()) {
-			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-			dispatcher.forward(request, response);
-		} else {
-
-			Utente session_user;
-			session_user = (Utente) session.getAttribute("utente");
-
-			// all'inizio la request ti porta qui
-
-			if (session_user == null) {
-
-				// qui desumi che l'utente non e' loggato
-				// e quindi leggi i paramtri usernae/pwd per verificare
+		// sessione vuota
+		if (session_user == null) {
+			if (!session.isNew() && userCookieLogin == null) {
+				// se il cookie è vuoto, chiedo il login
+				System.out.println("lettura credenziali login");
+				Utente utente = null;
 				String username = request.getParameter("username");
 				String password = request.getParameter("password");
 
-				// qui verifichi
-				Utente utente = login(username, password);
+				if ((username != null && password != null) && (utente = login(username, password)) != null) {
 
-				// il risultato puo' essere:
-				// - credenziali non valide -> utente = null
-				// - credenziali valide -> utente not null
+					Integer id_utente = utente.getId_utente();
+					session.setAttribute("utenteSessione", utente);
 
-				if (utente != null) {
-					// qui , se l'utente e' stato autenticato, salvi i suoi dati in sessione
-					session.setAttribute("utente", utente);
-					request.setAttribute(jspParamNameColor, coloreHome);
-					request.setAttribute("username", utente.getUsername());
 					request.setAttribute(jspParamUserId, session_id);
-					ArrayList<Risultati> risultati = null;
-					String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
-					request.setAttribute("data", date);
-					request.setAttribute("metodo", request.getMethod());
-					try {
-						risultati = queryResult(utente.getId_utente());
-						request.setAttribute("arraylist", risultati);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+
+					setInterface(request, username, null, id_utente);
+
+					Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
+					cookieUsername.setMaxAge(300);
+					response.addCookie(cookieUsername);
+
 					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 					dispatcher.forward(request, response);
-
-				} else {
-					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-					dispatcher.forward(request, response);
+					return;
 				}
+
+			} else if(userCookieLogin != null) {// se il cookie è pieno, eseguo login implicito
+				Utente userLogged = login(userCookieLogin.getValue(), null);
+				if (userLogged != null) {
+					session.setAttribute("utenteSessione", userLogged);
+					request.setAttribute(jspParamUserId, session_id);
+					String usernameUtente = userLogged.getUsername();
+					Integer id_utente = userLogged.getId_utente();
+
+					setInterface(request, usernameUtente, null, id_utente);
+
+					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+					dispatcher.forward(request, response);
+					return;
+				}
+
+			}
+			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+			dispatcher.forward(request, response);
+			return;
+		}
+		// la sessione è piena
+		else {
+			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
+				// la pagina jsp di login,stamperà un messaggio di logout
+				// elimino i cookie
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
+				cookieUsername.setMaxAge(0);
+				response.addCookie(cookieUsername);
+				session.invalidate();
+				request.setAttribute("logout_message", "Logout effettuato!");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+				dispatcher.forward(request, response);
+				return;
+
 			} else {
-				// se l'utente esegue il logout
-				if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
-					// viene invalidata la sessione
-					session.invalidate();
-					// la pagina jsp di login,stamperà un messaggio di logout
-					request.setAttribute("logout_message", "Logout effettuato!");
-					RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-					dispatcher.forward(request, response);
+				// se l'utente non fa il logout, eseguirà le operazioni
+				request.setAttribute(jspParamUserId, session_id);
+				Utente userLogged = (Utente) session.getAttribute("utenteSessione");
+				String utente = userLogged.getUsername();
+				Integer id_utente = userLogged.getId_utente();
 
-				} else {
-					// se l'utente non fa il logout, eseguirà le operazioni
-					request.setAttribute(jspParamUserId, session_id);
-					String utente = session_user.getUsername();
-					Integer id_utente = session_user.getId_utente();
-					System.out.print(id_utente);
-					ArrayList<Risultati> risultati = null;
-					String a = (String) request.getParameter(reqParamNameVal1);
-					String b = (String) request.getParameter(reqParamNameVal2);
-					String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
-					request.setAttribute("data", date);
-					request.setAttribute("metodo", request.getMethod());
+				setInterface(request, utente, session_id, id_utente);
 
-					if ((a == null) && (b == null)) {
-						request.setAttribute(jspParamNameColor, coloreHome);
-						request.setAttribute("username", utente);
-						try {
-							risultati = queryResult(id_utente);
-							request.setAttribute("arraylist", risultati);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					} else {
-						if (request.getMethod().equals("GET"))
-							request.setAttribute(jspParamNameColor, "yellow");
-						else
-							request.setAttribute(jspParamNameColor, "red");
-						String risultato = operazioni(a, b);
-						request.setAttribute(jspParamNameResult, risultato);
-						request.setAttribute("username", utente);
-						try {
-							insert(request.getMethod(), a, b, risultato, date, session_id, id_utente);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						try {
-							risultati = queryResult(id_utente);
-							request.setAttribute("arraylist", risultati);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
+				cookieUsername.setMaxAge(300);
+				response.addCookie(cookieUsername);
 
-					}
-					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
-					dispatcher.forward(request, response);
-				}
+				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+				dispatcher.forward(request, response);
+				return;
 			}
 		}
 	}
@@ -250,22 +224,123 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
+	// funzione che imposta il contenuto della pagina
+	public void setInterface(HttpServletRequest request, String username, String sessione, Integer id) {
+		ArrayList<Risultati> risultati = null;
+		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
+		String metodo = request.getMethod();
+		request.setAttribute("data", date);
+		request.setAttribute("metodo", metodo);
+		request.setAttribute("username", username);
+
+		if (sessione != null) {
+			String addendo1 = (String) request.getParameter(reqParamNameVal1);
+			String addendo2 = (String) request.getParameter(reqParamNameVal2);
+
+			if ((addendo1 == null) && (addendo2 == null)) {
+				request.setAttribute(jspParamNameColor, coloreHome);
+			} else {
+				if (request.getMethod().equals("GET"))
+					request.setAttribute(jspParamNameColor, "yellow");
+				else
+					request.setAttribute(jspParamNameColor, "red");
+				String risultato = operazioni(addendo1, addendo2);
+				request.setAttribute(jspParamNameResult, risultato);
+				try {
+					insert(metodo, addendo1, addendo2, risultato, date, sessione, id);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}
+		try {
+			risultati = queryResult(id);
+			request.setAttribute("arraylist", risultati);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	// funzione che ritorna il cookie che cerco
+	public Cookie getCookie(Cookie cookies[], String nameOfCookie) {
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals(nameOfCookie)) {
+					return cookie;
+				}
+			}
+		}
+		return null;
+	}
+
+	public Utente login(String username, String password) {
+
+		ResultSet resultSet = null;
+		boolean queryPositiva = false;
+		Utente utente = new Utente();
+		PreparedStatement preparedStatement;
+		if (password != null)
+			try {
+				// faccio una query per vedere se i dati inseriti sono corretti
+				preparedStatement = con.prepareStatement("select * from utente where username=? and password=?");
+
+				preparedStatement.setString(1, username);
+				preparedStatement.setString(2, password);
+				System.out.println("executing login with usr (" + username + ") pwd (" + password + ")");
+				resultSet = preparedStatement.executeQuery();
+				queryPositiva = resultSet.next();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		else
+			try {
+				preparedStatement = con.prepareStatement("select * from utente where username=?");
+
+				preparedStatement.setString(1, username);
+				resultSet = preparedStatement.executeQuery();
+				queryPositiva = resultSet.next();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		if (queryPositiva) {
+			// metto dentro utente i dati della riga della tabella
+			try {
+
+				utente.setUsername(resultSet.getString("username"));
+				utente.setPassword(resultSet.getString("password"));
+				utente.setNome(resultSet.getString("nome"));
+				utente.setCognome(resultSet.getString("cognome"));
+				utente.setId_utente(resultSet.getInt("id_utente"));
+				return utente;
+			} catch (SQLException e) {
+
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
 	// funzione che esegue l'insert dentro risultati per aggiungere l'operazione
-	public void insert(String nomeMetodo, String a, String b, String res, String date, String session,
+	public void insert(String nomeMetodo, String addendo1, String addendo2, String result, String date, String session,
 			Integer id_utente) throws SQLException {
 		try {
-			PreparedStatement ps = con.prepareStatement(
+			PreparedStatement preparedStatement = con.prepareStatement(
 					"INSERT INTO risultati(metodo, add1, add2, risultato, data, sessione, id_utente ) VALUES(?, ?, ?, ?, ?, ?, ?)");
 
 			// eseguo l'insert con i dati passati come parametri della funzione
-			ps.setString(1, nomeMetodo);
-			ps.setString(2, a);
-			ps.setString(3, b);
-			ps.setString(4, res);
-			ps.setString(5, date);
-			ps.setString(6, session);
-			ps.setInt(7, id_utente);
-			ps.executeUpdate();
+			preparedStatement.setString(1, nomeMetodo);
+			preparedStatement.setString(2, addendo1);
+			preparedStatement.setString(3, addendo2);
+			preparedStatement.setString(4, result);
+			preparedStatement.setString(5, date);
+			preparedStatement.setString(6, session);
+			preparedStatement.setInt(7, id_utente);
+			preparedStatement.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -274,44 +349,6 @@ public class Servlet extends HttpServlet {
 	// funzione che inserisce dentro un ArrayList tutti i risultati di un utente per
 	// poi
 	// passarloo alla pagina jsp
-	public Utente login(String username, String password) {
-
-		ResultSet rs = null;
-		boolean st = false;
-		Utente utente = new Utente();
-
-		try {
-			// faccio una query per vedere se i dati inseriti sono corretti
-			PreparedStatement ps = con.prepareStatement("select * from utente where username=? and password=?");
-
-			ps.setString(1, username);
-			ps.setString(2, password);
-			System.out.println("executing login with usr (" + username + ") pwd (" + password + ")");
-			rs = ps.executeQuery();
-			st = rs.next();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (st) {
-			// metto dentro utente i dati della riga della tabella
-			try {
-
-				utente.setUsername(rs.getString("username"));
-				utente.setPassword(rs.getString("password"));
-				utente.setNome(rs.getString("nome"));
-				utente.setCognome(rs.getString("cognome"));
-				utente.setId_utente(rs.getInt("id_utente"));
-				return utente;
-			} catch (SQLException e) {
-
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-		return null;
-	}
 
 	protected String operazioni(String a, String b) {
 
