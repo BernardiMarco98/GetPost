@@ -111,7 +111,7 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// quando sei qui, sai di essere in doGet()
-		logger.trace("TRACE: executing method"+request.getMethod());
+		logger.trace("Executing method doGet");
 
 		Cookie userCookies[] = request.getCookies();
 		Cookie userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
@@ -121,10 +121,10 @@ public class Servlet extends HttpServlet {
 
 		// sessione vuota
 		if (session_user == null) {
-			logger.trace("TRACE: nessun utente in sessione");
+			logger.trace("Nessun utente in sessione");
 			if (!session.isNew() && userCookieLogin == null) {
 				// se il cookie è vuoto, chiedo il login
-				logger.info("INFO: lettura credenziali login");
+				logger.info("Lettura credenziali login");
 				Utente utente = null;
 				String username = request.getParameter("username");
 				String password = request.getParameter("password");
@@ -137,8 +137,8 @@ public class Servlet extends HttpServlet {
 					request.setAttribute(jspParamUserId, session_id);
 
 					setInterface(request, username, null, id_utente);
-					
-					logger.debug("DEBUG: setting cookieUsername");
+
+					logger.debug("Setting cookieUsername=" + username);
 					Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 					cookieUsername.setMaxAge(300);
 					response.addCookie(cookieUsername);
@@ -148,9 +148,8 @@ public class Servlet extends HttpServlet {
 					return;
 				}
 
-				
-			} else if(userCookieLogin != null) {// se il cookie è pieno, eseguo login implicito
-				logger.trace("TRACE: trovato un cookie utente valido");
+			} else if (userCookieLogin != null) {// se il cookie è pieno, eseguo login implicito
+				logger.trace("Trovato un cookie utente valido");
 				Utente userLogged = login(userCookieLogin.getValue(), null);
 				if (userLogged != null) {
 					session.setAttribute("utenteSessione", userLogged);
@@ -172,12 +171,12 @@ public class Servlet extends HttpServlet {
 		}
 		// la sessione è piena
 		else {
-			logger.trace("TRACE: utente presente in sessione");
+			logger.trace("Utente presente in sessione");
 			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 				// la pagina jsp di login,stamperà un messaggio di logout
 				// elimino i cookie
-				logger.trace("TRACE: logout effettuato");
-				logger.debug("DEBUG: deleting cookieUsername");
+				logger.trace("Logout effettuato");
+				logger.debug("Deleting cookieUsername");
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
 				cookieUsername.setMaxAge(0);
 				response.addCookie(cookieUsername);
@@ -189,15 +188,15 @@ public class Servlet extends HttpServlet {
 
 			} else {
 				// se l'utente non fa il logout, eseguirà le operazioni
-				
+
 				request.setAttribute(jspParamUserId, session_id);
 				Utente userLogged = (Utente) session.getAttribute("utenteSessione");
 				String utente = userLogged.getUsername();
 				Integer id_utente = userLogged.getId_utente();
 
 				setInterface(request, utente, session_id, id_utente);
-				
-				logger.debug("DEBUG: setting cookieUsername");
+
+				logger.debug("Setting cookieUsername=" + utente);
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
 				cookieUsername.setMaxAge(300);
 				response.addCookie(cookieUsername);
@@ -216,6 +215,7 @@ public class Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// quando sei qui ... sai di essere in doPost()
+		logger.trace("Executing method doPost");
 		doGet(request, response);
 	}
 
@@ -226,24 +226,25 @@ public class Servlet extends HttpServlet {
 	 *      response)
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		
+
 		logger = Logger.getRootLogger();
-		logger.info("INFO: Servlet initialized");
-		
+		logger.info("Servlet initialized");
+
 		// Stabilisco la connessione col database
 		try {
 			Class.forName("org.postgresql.Driver");
+			logger.debug("Connessione al database in corso... (jdbc:postgresql://localhost:5432/getpost) (postgres) (postgre)");
 			con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
-			logger.info("INFO: Connessione al database in corso..");
+			logger.info("Connessione avvennuta con successo!");
 		} catch (ClassNotFoundException | SQLException e) {
-			logger.error("ERROR: Connessione al database fallita!");
+			logger.error("Connessione al database fallita!");
 			e.printStackTrace();
 		}
 	}
 
 	// funzione che imposta il contenuto della pagina
 	public void setInterface(HttpServletRequest request, String username, String sessione, Integer id) {
-		logger.trace("TRACE: executing method setInterface");
+		logger.trace("Executing method setInterface");
 		ArrayList<Risultati> risultati = null;
 		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
 		String metodo = request.getMethod();
@@ -252,6 +253,7 @@ public class Servlet extends HttpServlet {
 		request.setAttribute("username", username);
 
 		if (sessione != null) {
+			logger.trace("lettura parametri somma");
 			String addendo1 = (String) request.getParameter(reqParamNameVal1);
 			String addendo2 = (String) request.getParameter(reqParamNameVal2);
 
@@ -262,12 +264,13 @@ public class Servlet extends HttpServlet {
 					request.setAttribute(jspParamNameColor, "yellow");
 				else
 					request.setAttribute(jspParamNameColor, "red");
+				logger.debug("addendo1="+addendo1+" , addendo2="+addendo2);
 				String risultato = operazioni(addendo1, addendo2);
 				request.setAttribute(jspParamNameResult, risultato);
 				try {
 					insert(metodo, addendo1, addendo2, risultato, date, sessione, id);
 				} catch (SQLException e) {
-					logger.error("ERROR: impossibile inserire il risultato nel db");
+					logger.error("Impossibile inserire il risultato nel db");
 					e.printStackTrace();
 				}
 
@@ -277,16 +280,16 @@ public class Servlet extends HttpServlet {
 			risultati = queryResult(id);
 			request.setAttribute("arraylist", risultati);
 		} catch (SQLException e) {
-			logger.error("ERROR: impossibile visualizzare i risultati");
+			logger.error("Impossibile visualizzare i risultati");
 			e.printStackTrace();
 		}
 	}
 
 	// funzione che ritorna il cookie che cerco
 	public Cookie getCookie(Cookie cookies[], String nameOfCookie) {
-		
-		logger.trace("TRACE: executing method getCookie");
-		
+
+		logger.trace("Executing method getCookie");
+
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals(nameOfCookie)) {
@@ -299,7 +302,7 @@ public class Servlet extends HttpServlet {
 
 	public Utente login(String username, String password) {
 
-		logger.trace("TRACE: executing method login");
+		logger.trace("Executing method login");
 		ResultSet resultSet = null;
 		boolean queryPositiva = false;
 		Utente utente = new Utente();
@@ -311,30 +314,30 @@ public class Servlet extends HttpServlet {
 
 				preparedStatement.setString(1, username);
 				preparedStatement.setString(2, password);
-				logger.debug("executing login with usr (" + username + ") pwd (" + password + ")");
+				logger.debug("Executing login with usr (" + username + ") pwd (" + password + ")");
 				resultSet = preparedStatement.executeQuery();
 				queryPositiva = resultSet.next();
 			} catch (Exception e) {
-				logger.error("ERROR: impossibile eseguire la query");
+				logger.error("Impossibile eseguire la query");
 				e.printStackTrace();
 			}
 		else
 			try {
 				preparedStatement = con.prepareStatement("select * from utente where username=?");
-				logger.debug("executing implicit login");
+				logger.debug("Executing implicit login");
 				preparedStatement.setString(1, username);
 				resultSet = preparedStatement.executeQuery();
 				queryPositiva = resultSet.next();
 			} catch (Exception e) {
-				logger.error("ERROR: impossibile eseguire la query");
+				logger.error("Impossibile eseguire la query");
 				e.printStackTrace();
 			}
 
 		if (queryPositiva) {
-			logger.trace("TRACE: utente loggato correttamente!");
+			logger.trace("Utente loggato correttamente!");
 			// metto dentro utente i dati della riga della tabella
 			try {
-				
+
 				utente.setUsername(resultSet.getString("username"));
 				utente.setPassword(resultSet.getString("password"));
 				utente.setNome(resultSet.getString("nome"));
@@ -342,20 +345,20 @@ public class Servlet extends HttpServlet {
 				utente.setId_utente(resultSet.getInt("id_utente"));
 				return utente;
 			} catch (SQLException e) {
-				logger.error("ERROR: impossibile settare i dati utente");
+				logger.error("Impossibile settare i dati utente");
 				e.printStackTrace();
 			}
 		}
-		logger.trace("TRACE: credenziali di login errate");
+		logger.warn("Credenziali di login errate");
 		return null;
 	}
 
 	// funzione che esegue l'insert dentro risultati per aggiungere l'operazione
 	public void insert(String nomeMetodo, String addendo1, String addendo2, String result, String date, String session,
 			Integer id_utente) throws SQLException {
-		
-		logger.trace("TRACE: executing method insert");
-		
+
+		logger.trace("Executing method insert");
+
 		try {
 			PreparedStatement preparedStatement = con.prepareStatement(
 					"INSERT INTO risultati(metodo, add1, add2, risultato, data, sessione, id_utente ) VALUES(?, ?, ?, ?, ?, ?, ?)");
@@ -370,7 +373,7 @@ public class Servlet extends HttpServlet {
 			preparedStatement.setInt(7, id_utente);
 			preparedStatement.executeUpdate();
 		} catch (Exception e) {
-			logger.error("ERROR: impossibile inserire il risultato nel db");
+			logger.error("Impossibile inserire il risultato nel db");
 			e.printStackTrace();
 		}
 	}
@@ -380,8 +383,8 @@ public class Servlet extends HttpServlet {
 	// passarloo alla pagina jsp
 
 	protected String operazioni(String a, String b) {
-		
-		logger.trace("TRACE: executing method operazioni");
+
+		logger.trace("Executing method operazioni");
 
 		int x = 0;
 		int y = 0;
@@ -393,7 +396,7 @@ public class Servlet extends HttpServlet {
 
 			int res = x + y;
 			String risultato = String.valueOf(res);
-			logger.debug("DEBUG: esecuzione somma-> "+ a +"+" + b + "="+ risultato );
+			logger.debug("Esecuzione somma-> " + a + "+" + b + "=" + risultato);
 			return risultato;
 
 		} catch (NumberFormatException e) {
@@ -401,14 +404,14 @@ public class Servlet extends HttpServlet {
 			// se le stringhe non possono essere castate in interi,il risultato sarà un
 			// errore
 			String risultato = errore;
-			logger.debug("DEBUG: esecuzione somma-> "+ a +"+" + b + "="+ risultato );
+			logger.debug("Esecuzione somma-> " + a + "+" + b + "=" + risultato);
 			return risultato;
 		}
 	}
 
 	public ArrayList<Risultati> queryResult(Integer id_utente) throws SQLException {
 
-		logger.trace("TRACE: executing method queryResult");
+		logger.trace("Executing method queryResult");
 		// dichiaro arraylist
 		ArrayList<Risultati> risultati = new ArrayList<Risultati>();
 		ResultSet resultSet = null;
@@ -432,7 +435,7 @@ public class Servlet extends HttpServlet {
 				risultati.add(user);
 			}
 		} catch (Exception e) {
-			logger.error("ERROR: impossibile eseguire la query");
+			logger.error("Impossibile eseguire la query");
 			e.printStackTrace();
 		}
 		return risultati;
