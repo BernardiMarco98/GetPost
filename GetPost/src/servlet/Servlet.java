@@ -345,6 +345,8 @@ public class Servlet extends HttpServlet {
 				utente.setNome(resultSet.getString("nome"));
 				utente.setCognome(resultSet.getString("cognome"));
 				utente.setId_utente(resultSet.getInt("id_utente"));
+				logger.debug("Dati utente messo in sessione: Username=" + utente.getUsername() + ", Nome:"
+						+ utente.getNome() + ", Cognome=" + utente.getCognome() + ", ID=" + utente.getId_utente());
 				return utente;
 			} catch (SQLException e) {
 				logger.error("Impossibile settare i dati utente, Exception:" + e);
