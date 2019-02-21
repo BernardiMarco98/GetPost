@@ -127,7 +127,7 @@ public class Servlet extends HttpServlet {
 				String username = request.getParameter("username");
 				String password = request.getParameter("password");
 
-				logger.debug("Parametri login letti: username:" + username + " password:" + password);
+				logger.debug("Parametri login ricevuti: username:" + username + " password:*******");
 				if ((username != null && password != null) && (utente = login(username, password)) != null) {
 					Integer id_utente = utente.getId_utente();
 					session.setAttribute("utenteSessione", utente);
@@ -136,6 +136,7 @@ public class Servlet extends HttpServlet {
 
 					setInterface(request, username, null, id_utente);
 
+					logger.trace("Sessione vuota e cookie valido assente");
 					logger.debug("Setting cookieUsername=" + username);
 					Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 					cookieUsername.setMaxAge(300);
@@ -147,10 +148,9 @@ public class Servlet extends HttpServlet {
 				}
 
 			} else if (userCookieLogin != null) {// se il cookie è pieno, eseguo login implicito
-				// e qui , visto che lo hai messo ?
 				Utente userLogged = login(userCookieLogin.getValue(), null);
 				if (userLogged != null) {
-					// qui ?
+
 					session.setAttribute("utenteSessione", userLogged);
 					request.setAttribute(jspParamUserId, session_id);
 					String usernameUtente = userLogged.getUsername();
@@ -173,13 +173,13 @@ public class Servlet extends HttpServlet {
 			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 				// la pagina jsp di login,stamperà un messaggio di logout
 				// elimino i cookie
-				logger.debug("Logout effetuato, cookieUsername cancellato");
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
 				cookieUsername.setMaxAge(0);
 				response.addCookie(cookieUsername);
 				session.invalidate();
 				request.setAttribute("logout_message", "Logout effettuato!");
 				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+				logger.debug("Logout effetuato, cookieUsername cancellato");
 				dispatcher.forward(request, response);
 				return;
 
@@ -193,6 +193,7 @@ public class Servlet extends HttpServlet {
 
 				setInterface(request, utente, session_id, id_utente);
 
+				logger.trace("Utente in sessione");
 				logger.debug("Setting cookieUsername=" + utente);
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
 				cookieUsername.setMaxAge(300);
@@ -230,7 +231,8 @@ public class Servlet extends HttpServlet {
 		// Stabilisco la connessione col database
 		try {
 			Class.forName("org.postgresql.Driver");
-			logger.debug("Connessione al database in corso... (jdbc:postgresql://localhost:5432/getpost) (postgres) (postgre)");
+			logger.debug(
+					"Connessione al database in corso... (jdbc:postgresql://localhost:5432/getpost) (postgres) (postgre)");
 			con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
 		} catch (ClassNotFoundException | SQLException e) {
 			logger.error("Connessione al database fallita! Exception:" + e);
@@ -239,10 +241,14 @@ public class Servlet extends HttpServlet {
 
 	// funzione che imposta il contenuto della pagina
 	public void setInterface(HttpServletRequest request, String username, String sessione, Integer id) {
+
 		logger.trace("Executing method setInterface");
+
 		ArrayList<Risultati> risultati = null;
+
 		String date = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(new Date());
 		String metodo = request.getMethod();
+
 		request.setAttribute("data", date);
 		request.setAttribute("metodo", metodo);
 		request.setAttribute("username", username);
@@ -250,9 +256,10 @@ public class Servlet extends HttpServlet {
 		if (sessione != null) {
 			String addendo1 = (String) request.getParameter(reqParamNameVal1);
 			String addendo2 = (String) request.getParameter(reqParamNameVal2);
-			//dovrei farlo qui così vedo anche quando sono vuoti
-			// si ( al netto che non ricordo come si comporta se sono null , non so se va in crash .. da provare ) 
-			logger.debug("Parametri somma letti: addendo1="+addendo1+" , addendo2="+addendo2);
+			// dovrei farlo qui così vedo anche quando sono vuoti
+			// si ( al netto che non ricordo come si comporta se sono null , non so se va in
+			// crash .. da provare )
+			logger.debug("Parametri somma letti: addendo1=" + addendo1 + " , addendo2=" + addendo2);
 			if ((addendo1 == null) && (addendo2 == null)) {
 				request.setAttribute(jspParamNameColor, coloreHome);
 			} else {
@@ -262,10 +269,12 @@ public class Servlet extends HttpServlet {
 					request.setAttribute(jspParamNameColor, "red");
 				String risultato = operazioni(addendo1, addendo2);
 				request.setAttribute(jspParamNameResult, risultato);
+
 				try {
 					insert(metodo, addendo1, addendo2, risultato, date, sessione, id);
 				} catch (SQLException e) {
-					logger.error("Impossibile inserire il risultato nel db, Exception:" + e);
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
 			}
@@ -307,10 +316,10 @@ public class Servlet extends HttpServlet {
 
 				preparedStatement.setString(1, username);
 				preparedStatement.setString(2, password);
-				logger.debug("Executing login with usr (" + username + ") pwd (" + password + ")");
+				logger.debug("Executing login with usr (" + username + ") pwd (*****)");
 				resultSet = preparedStatement.executeQuery();
 				queryPositiva = resultSet.next();
-				logger.debug("Query eseguita: "+ preparedStatement);
+				// logger.debug("Query eseguita: " + preparedStatement);
 			} catch (Exception e) {
 				logger.error("Impossibile eseguire la query, Exception:" + e);
 			}
@@ -321,15 +330,16 @@ public class Servlet extends HttpServlet {
 				preparedStatement.setString(1, username);
 				resultSet = preparedStatement.executeQuery();
 				queryPositiva = resultSet.next();
-				logger.debug("Query eseguita: "+ preparedStatement);
+				// logger.debug("Query eseguita: " + preparedStatement);
 			} catch (Exception e) {
 				logger.error("Impossibile eseguire la query, Exception:" + e);
 			}
 
 		if (queryPositiva) {
 			// metto dentro utente i dati della riga della tabella
+			// qui non servirebbe un log che ti dice cosa stai mettendo in session ?
+			// si sarebbe utile
 			try {
-
 				utente.setUsername(resultSet.getString("username"));
 				utente.setPassword(resultSet.getString("password"));
 				utente.setNome(resultSet.getString("nome"));
@@ -340,7 +350,7 @@ public class Servlet extends HttpServlet {
 				logger.error("Impossibile settare i dati utente, Exception:" + e);
 			}
 		}
-		logger.warn("Credenziali di login errate");
+		logger.trace("wrong username or password for username:" + username);
 		return null;
 	}
 
@@ -363,7 +373,7 @@ public class Servlet extends HttpServlet {
 			preparedStatement.setString(6, session);
 			preparedStatement.setInt(7, id_utente);
 			preparedStatement.executeUpdate();
-			logger.debug("Query eseguita: "+ preparedStatement);
+			logger.debug("Query eseguita: " + preparedStatement);
 		} catch (Exception e) {
 			logger.error("Impossibile inserire il risultato nel db, Exception:" + e);
 		}
@@ -379,6 +389,7 @@ public class Servlet extends HttpServlet {
 
 		int x = 0;
 		int y = 0;
+		String risultato = null;
 
 		// in questo blocco eseguo la somma castando le stringhe passate nel form
 		try {
@@ -386,18 +397,16 @@ public class Servlet extends HttpServlet {
 			y = Integer.parseInt(b);
 
 			int res = x + y;
-			String risultato = String.valueOf(res);
-			logger.debug("Esecuzione somma-> " + a + "+" + b + "=" + risultato);
-			return risultato;
+			risultato = String.valueOf(res);
 
 		} catch (NumberFormatException e) {
 
 			// se le stringhe non possono essere castate in interi,il risultato sarà un
 			// errore
-			String risultato = errore;
-			logger.debug("Esecuzione somma-> " + a + "+" + b + "=" + risultato);
-			return risultato;
+			risultato = errore;
 		}
+		logger.debug("Esecuzione somma-> " + a + "+" + b + "=" + risultato);
+		return risultato;
 	}
 
 	public ArrayList<Risultati> queryResult(Integer id_utente) throws SQLException {
@@ -410,11 +419,12 @@ public class Servlet extends HttpServlet {
 
 		// inserisco in una variabile locale l'id_utente
 		try {
-			preparedStatement = con.prepareStatement("select add1, add2, risultato, data, metodo from risultati where id_utente=?");
+			preparedStatement = con
+					.prepareStatement("select add1, add2, risultato, data, metodo from risultati where id_utente=?");
 			preparedStatement.setInt(1, id_utente);
-			
+
 			resultSet = preparedStatement.executeQuery();
-			logger.debug("Query eseguita: "+ preparedStatement);
+			logger.debug("Query eseguita: " + preparedStatement);
 
 			// dopo aver fatto la query, inserisco i risultati dentro l'array
 			while (resultSet.next()) {
