@@ -2,7 +2,6 @@ package servlet;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
@@ -41,65 +43,8 @@ public class Servlet extends HttpServlet {
 	String jspParamUserId = "id";
 	String nomeSessionList = "lista";
 	public Connection con;
+	String implicitLogin = null;
 	private Logger logger = null;
-
-	/**
-	 * qui tu stai dichiarando due variabili a livello di Servlet quindi verranno
-	 * condivise da ogni request gestita dalla servlet
-	 *
-	 * lo scenario con cui stiamo facendo questi esercizi e' poco realistico perche'
-	 * generiamo una request alla volta
-	 *
-	 * mentre nelle servlet di produzione, possono arrivare anche migliaia di
-	 * request al secondo
-	 *
-	 * ammetiamo di essere in grado di generare due request contemporanee: arriva la
-	 * prima, entra ad esempio nel doPost e mette in a e b le due stringhe ricevute
-	 * dalla form (es 10,20).
-	 *
-	 * stessa cosa fa la seconda request (es 30,40)
-	 *
-	 * tutte le volte che arriva una request , il container delega a un thread le
-	 * operazioni da fare per quella request , per fare in modo che lui (il
-	 * container) sia pronto a gestire sin da subito una nuova request (se non
-	 * facesse cosi, la millesima request potrebbe dover attendere secondi prima che
-	 * le altre 999 vengano eseguite ...e questo e' troppo inefficiente (boh .. con
-	 * o senza i ? credo con si :-)
-	 *
-	 * quindi ogni request viene eseguita in PARALLELO
-	 *
-	 * quindi siamo al punto che le due request , eseguite in parallelo , sono allo
-	 * setsso punto (valorizzazione di a e b )
-	 *
-	 * Da a e b, con le parseInt() otterresti x ed y ma qui c'e' l'inghippo x ed y
-	 * sono dichiarate a livello di classe (Servlet) e quindi sono COMUNI ai due
-	 * threads che stanno gestendo le due request (a differenza di a e b che sono
-	 * diciarate a livello di metodo e quindi DISTINTE nei vari threads)
-	 *
-	 * immagina che il primo thread arrivi qualche microsecondo prima del secondo e
-	 * quinda metta dentro in x e y i due valori 10 e 20 ma, subito dopo ( e prima
-	 * che il primo thread riesca a fare la int res = x+y; ) il secondo arriva e
-	 * mette in x e y 30 e 40... il risultato e' un disastro: la prima request
-	 * scriverebbe in res 70 invece di 30 e la seconda request anche lei quindi chi
-	 * ha fatto la request 10,20 si vede arrivare una response con dentro 70 invece
-	 * di 30
-	 *
-	 * ecco perche' quelle due variabili non possono essere GLOBALI (comuni a tutte
-	 * le request) ma devono essere LOCALI (con visibilita' limitata al metodo e
-	 * quindi al thread che lo sta eseguendo)
-	 *
-	 * questo ci fa capire che una applicazione web oltre a passare i test
-	 * funzionali e di regressione (normalmente eseguiti con singol request ) deve
-	 * passare anche dei test MULTITHREAD (che sono quelli che simulano la realta )
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 */
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -112,6 +57,8 @@ public class Servlet extends HttpServlet {
 			throws ServletException, IOException {
 		// quando sei qui, sai di essere in doGet()
 		logger.trace("Executing method doGet");
+
+		logger.debug("implicitLogin =" + implicitLogin);
 
 		Cookie userCookies[] = request.getCookies();
 		Cookie userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
@@ -138,16 +85,18 @@ public class Servlet extends HttpServlet {
 
 					logger.trace("Sessione vuota e cookie valido assente");
 					logger.debug("Setting cookieUsername=" + username);
-					Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
-					cookieUsername.setMaxAge(300);
-					response.addCookie(cookieUsername);
-
+					if (implicitLogin.equals("enable")) {
+						Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
+						cookieUsername.setMaxAge(300);
+						response.addCookie(cookieUsername);
+					}
 					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 					dispatcher.forward(request, response);
 					return;
 				}
 
-			} else if (userCookieLogin != null) {// se il cookie è pieno, eseguo login implicito
+			} else if (userCookieLogin != null && implicitLogin.equals("enable")) {// se il cookie è pieno, eseguo login
+				// implicito
 				Utente userLogged = login(userCookieLogin.getValue(), null);
 				if (userLogged != null) {
 
@@ -194,11 +143,12 @@ public class Servlet extends HttpServlet {
 				setInterface(request, utente, session_id, id_utente);
 
 				logger.trace("Utente in sessione");
-				logger.debug("Setting cookieUsername=" + utente);
-				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
-				cookieUsername.setMaxAge(300);
-				response.addCookie(cookieUsername);
-
+				if (implicitLogin.equals("enable")) {
+					logger.debug("Setting cookieUsername=" + utente);
+					Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
+					cookieUsername.setMaxAge(300);
+					response.addCookie(cookieUsername);
+				}
 				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 				dispatcher.forward(request, response);
 				return;
@@ -223,19 +173,42 @@ public class Servlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
-	public void init(ServletConfig config) throws ServletException {
+	public void init() throws ServletException {
 
 		logger = Logger.getRootLogger();
 		logger.info("Servlet initialized");
+		ServletConfig c = this.getServletConfig();
+		implicitLogin = c.getInitParameter("cookieLogin");
 
-		// Stabilisco la connessione col database
 		try {
 			Class.forName("org.postgresql.Driver");
-			logger.debug(
-					"Connessione al database in corso... (jdbc:postgresql://localhost:5432/getpost) (postgres) (postgre)");
-			con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
-		} catch (ClassNotFoundException | SQLException e) {
-			logger.error("Connessione al database fallita! Exception:" + e);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// Stabilisco la connessione col database
+		InitialContext cxt = null;
+		try {
+			cxt = new InitialContext();
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			logger.error("Uh oh -- no context!" + e);
+		}
+
+		DataSource ds = null;
+		try {
+			ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/postgres");
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			logger.error("Data source not found!" + e);
+		}
+
+		try {
+			con = ds.getConnection();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			logger.error("impossibile connettersi al database" + e);
 		}
 	}
 

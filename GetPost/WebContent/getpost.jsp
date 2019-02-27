@@ -15,12 +15,12 @@
 Questa è la pagina GetPost!
 
 <h1>Bentornato ${username} , il tuo id utente è: ${id}</h1>
-<h2>Non sei ${username}?Clicca qui:
+<h2>Non sei ${username}?Clicca qui:</h2>
+
 <form action = "Servlet" method ="post">
 <input type="hidden" name = "logout" value = "t">
 <input type = submit>
 </form>
-</h2>
 
 <h2>La data odierna è :${data} ed hai usato il metodo ${metodo}</h2>
 
