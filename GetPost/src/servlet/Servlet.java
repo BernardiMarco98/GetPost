@@ -14,7 +14,7 @@ import java.util.Date;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
@@ -177,8 +177,8 @@ public class Servlet extends HttpServlet {
 
 		logger = Logger.getRootLogger();
 		logger.info("Servlet initialized");
-		ServletConfig c = this.getServletConfig();
-		implicitLogin = c.getInitParameter("cookieLogin");
+		ServletContext c = this.getServletContext();
+		implicitLogin = c.getInitParameter("cookie");
 
 		try {
 			Class.forName("org.postgresql.Driver");
