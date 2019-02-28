@@ -84,8 +84,9 @@ public class Servlet extends HttpServlet {
 					setInterface(request, username, null, id_utente);
 
 					logger.trace("Sessione vuota e cookie valido assente");
-					logger.debug("Setting cookieUsername=" + username);
+
 					if (implicitLogin.equals("enable")) {
+						logger.debug("Setting cookieUsername=" + username);
 						Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 						cookieUsername.setMaxAge(300);
 						response.addCookie(cookieUsername);
@@ -184,7 +185,7 @@ public class Servlet extends HttpServlet {
 			Class.forName("org.postgresql.Driver");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Driver not found, Exception:" + e);
 		}
 
 		// Stabilisco la connessione col database
@@ -193,7 +194,7 @@ public class Servlet extends HttpServlet {
 			cxt = new InitialContext();
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
-			logger.error("Uh oh -- no context!" + e);
+			logger.error("No context! Exception:" + e);
 		}
 
 		DataSource ds = null;
@@ -201,14 +202,14 @@ public class Servlet extends HttpServlet {
 			ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/postgres");
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
-			logger.error("Data source not found!" + e);
+			logger.error("Data source not found! Exception" + e);
 		}
 
 		try {
 			con = ds.getConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			logger.error("impossibile connettersi al database" + e);
+			logger.error("impossibile connettersi al database Exception:" + e);
 		}
 	}
 

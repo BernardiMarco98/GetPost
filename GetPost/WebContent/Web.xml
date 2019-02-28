@@ -13,7 +13,7 @@
 	</servlet-mapping>
 <context-param>
 	<param-name>cookie</param-name>
-	<param-value>disable</param-value>
+	<param-value>enable</param-value>
 </context-param>
 	<resource-ref>
 		<description>postgreSQL Datasource example</description>
