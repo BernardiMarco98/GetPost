@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
+	String enable = "enable";
 	String errore = "errore";
 	String nomejsp = "getpost.jsp";
 	String coloreHome = "white";
@@ -60,13 +61,13 @@ public class Servlet extends HttpServlet {
 		logger.trace("Executing method doGet");
 		Cookie userCookies[] = null;
 		Cookie userCookieLogin = null;
-		logger.debug("implicitLogin =" + implicitLogin);
+		logger.debug("implicitLogin = " + implicitLogin);
 
-		if (implicitLogin == null || implicitLogin.equals("disable")) {
-			logger.debug("cookies disabilitati o configurazione da aggiornare");
-		} else {
+		if (enable.equals(implicitLogin)) {
 			userCookies = request.getCookies();
 			userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
+		} else {
+			logger.debug("cookies disabilitati o configurazione da aggiornare");
 		}
 		HttpSession session = request.getSession();
 		String session_id = session.getId();
@@ -91,7 +92,7 @@ public class Servlet extends HttpServlet {
 
 					logger.trace("Sessione vuota e cookie valido assente");
 
-					if (implicitLogin != null && implicitLogin.equals("enable")) {
+					if (enable.equals(implicitLogin)) {
 						logger.debug("Setting cookieUsername=" + username);
 						Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 						cookieUsername.setMaxAge(300);
@@ -104,6 +105,7 @@ public class Servlet extends HttpServlet {
 
 			} else if (userCookieLogin != null) {// se il cookie è pieno, eseguo login
 				// implicito
+
 				Utente userLogged = login(userCookieLogin.getValue(), null);
 				if (userLogged != null) {
 
@@ -129,7 +131,7 @@ public class Servlet extends HttpServlet {
 			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 				// la pagina jsp di login,stamperà un messaggio di logout
 				// elimino i cookie
-				if (implicitLogin != null && implicitLogin.equals("enable")) {
+				if (enable.equals(implicitLogin)) {
 					Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
 					cookieUsername.setMaxAge(0);
 					response.addCookie(cookieUsername);
@@ -152,7 +154,7 @@ public class Servlet extends HttpServlet {
 				setInterface(request, utente, session_id, id_utente);
 
 				logger.trace("Utente in sessione");
-				if (implicitLogin != null && implicitLogin.equals("enable")) {
+				if (enable.equals(implicitLogin)) {
 					logger.debug("Setting cookieUsername=" + utente);
 					Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
 					cookieUsername.setMaxAge(300);
@@ -191,43 +193,27 @@ public class Servlet extends HttpServlet {
 
 		try {
 			Class.forName("org.postgresql.Driver");
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			logger.error("Driver not found, Exception:" + e);
-		}
-
-		InitialContext initialContext = null;
-		try {
+			InitialContext initialContext = null;
 			initialContext = new InitialContext();
-		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			logger.error("No context! Exception:" + e);
-		}
 
-		DataSource dataSource = null;
-		try {
+			DataSource dataSource = null;
 			dataSource = (DataSource) initialContext.lookup("java:/comp/env/jdbc/postgres");
-		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			logger.error("Data source not found! Exception" + e);
-		}
 
-		if (dataSource != null) {
-			try {
+			if (dataSource != null) {
 				con = dataSource.getConnection();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				logger.error("impossibile connettersi al database Exception:" + e);
+			} else {
+				logger.warn("DataSource null, aggiornare la configurazione");
 			}
-		} else {
-			logger.trace("DataSource null, aggiornare il file di configurazione");
+		} catch (ClassNotFoundException | NamingException | SQLException e) {
+			logger.error("Errore nell'inizializzazione, Exception:" + e);
 			try {
 				con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
-				System.out.println("Connessione in corso...");
-			} catch (SQLException e) {
-				logger.error("impossibile connettersi al database Exception:" + e);
+			} catch (SQLException dbE) {
+				logger.error("Impossibile connettersi al db, Exception:" + dbE);
+				dbE.printStackTrace();
 			}
 		}
+
 	}
 
 	// funzione che imposta il contenuto della pagina
