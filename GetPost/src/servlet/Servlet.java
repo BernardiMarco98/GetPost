@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,11 +58,16 @@ public class Servlet extends HttpServlet {
 			throws ServletException, IOException {
 		// quando sei qui, sai di essere in doGet()
 		logger.trace("Executing method doGet");
-
+		Cookie userCookies[] = null;
+		Cookie userCookieLogin = null;
 		logger.debug("implicitLogin =" + implicitLogin);
 
-		Cookie userCookies[] = request.getCookies();
-		Cookie userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
+		if (implicitLogin == null || implicitLogin.equals("disable")) {
+			logger.debug("cookies disabilitati o configurazione da aggiornare");
+		} else {
+			userCookies = request.getCookies();
+			userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
+		}
 		HttpSession session = request.getSession();
 		String session_id = session.getId();
 		Utente session_user = (Utente) session.getAttribute("utenteSessione");
@@ -85,7 +91,7 @@ public class Servlet extends HttpServlet {
 
 					logger.trace("Sessione vuota e cookie valido assente");
 
-					if (implicitLogin.equals("enable")) {
+					if (implicitLogin != null && implicitLogin.equals("enable")) {
 						logger.debug("Setting cookieUsername=" + username);
 						Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 						cookieUsername.setMaxAge(300);
@@ -96,7 +102,7 @@ public class Servlet extends HttpServlet {
 					return;
 				}
 
-			} else if (userCookieLogin != null && implicitLogin.equals("enable")) {// se il cookie è pieno, eseguo login
+			} else if (userCookieLogin != null) {// se il cookie è pieno, eseguo login
 				// implicito
 				Utente userLogged = login(userCookieLogin.getValue(), null);
 				if (userLogged != null) {
@@ -123,13 +129,15 @@ public class Servlet extends HttpServlet {
 			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 				// la pagina jsp di login,stamperà un messaggio di logout
 				// elimino i cookie
-				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
-				cookieUsername.setMaxAge(0);
-				response.addCookie(cookieUsername);
+				if (implicitLogin != null && implicitLogin.equals("enable")) {
+					Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
+					cookieUsername.setMaxAge(0);
+					response.addCookie(cookieUsername);
+				}
 				session.invalidate();
 				request.setAttribute("logout_message", "Logout effettuato!");
 				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-				logger.debug("Logout effetuato, cookieUsername cancellato");
+				logger.debug("Logout effetuato");
 				dispatcher.forward(request, response);
 				return;
 
@@ -144,7 +152,7 @@ public class Servlet extends HttpServlet {
 				setInterface(request, utente, session_id, id_utente);
 
 				logger.trace("Utente in sessione");
-				if (implicitLogin.equals("enable")) {
+				if (implicitLogin != null && implicitLogin.equals("enable")) {
 					logger.debug("Setting cookieUsername=" + utente);
 					Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
 					cookieUsername.setMaxAge(300);
@@ -178,8 +186,8 @@ public class Servlet extends HttpServlet {
 
 		logger = Logger.getRootLogger();
 		logger.info("Servlet initialized");
-		ServletContext c = this.getServletContext();
-		implicitLogin = c.getInitParameter("cookie");
+		ServletContext servletContext = this.getServletContext();
+		implicitLogin = servletContext.getInitParameter("cookie");
 
 		try {
 			Class.forName("org.postgresql.Driver");
@@ -188,28 +196,37 @@ public class Servlet extends HttpServlet {
 			logger.error("Driver not found, Exception:" + e);
 		}
 
-		// Stabilisco la connessione col database
-		InitialContext cxt = null;
+		InitialContext initialContext = null;
 		try {
-			cxt = new InitialContext();
+			initialContext = new InitialContext();
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			logger.error("No context! Exception:" + e);
 		}
 
-		DataSource ds = null;
+		DataSource dataSource = null;
 		try {
-			ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/postgres");
+			dataSource = (DataSource) initialContext.lookup("java:/comp/env/jdbc/postgres");
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			logger.error("Data source not found! Exception" + e);
 		}
 
-		try {
-			con = ds.getConnection();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			logger.error("impossibile connettersi al database Exception:" + e);
+		if (dataSource != null) {
+			try {
+				con = dataSource.getConnection();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				logger.error("impossibile connettersi al database Exception:" + e);
+			}
+		} else {
+			logger.trace("DataSource null, aggiornare il file di configurazione");
+			try {
+				con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
+				System.out.println("Connessione in corso...");
+			} catch (SQLException e) {
+				logger.error("impossibile connettersi al database Exception:" + e);
+			}
 		}
 	}
 
