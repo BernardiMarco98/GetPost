@@ -130,43 +130,43 @@ public class Servlet extends HttpServlet {
 			return;
 		}
 		// la sessione è piena
-		else {
-			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
-				// la pagina jsp di login,stamperà un messaggio di logout
-				// elimino i cookie
-				if (enable.equals(implicitLogin)) {
-					Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
-					cookieUsername.setMaxAge(0);
-					response.addCookie(cookieUsername);
-				}
-				session.invalidate();
-				request.setAttribute("logout_message", "Logout effettuato!");
-				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-				logger.debug("Logout effetuato");
-				dispatcher.forward(request, response);
-				return;
 
-			}
-			// se l'utente non fa il logout, eseguirà le operazioni
-
-			request.setAttribute(jspParamUserId, session_id);
-			Utente userLogged = (Utente) session.getAttribute("utenteSessione");
-			String utente = userLogged.getUsername();
-			Integer id_utente = userLogged.getId_utente();
-
-			setInterface(request, utente, session_id, id_utente);
-
-			logger.trace("Utente in sessione");
+		if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
+			// la pagina jsp di login,stamperà un messaggio di logout
+			// elimino i cookie
 			if (enable.equals(implicitLogin)) {
-				logger.debug("Setting cookieUsername=" + utente);
-				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
-				cookieUsername.setMaxAge(300);
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
+				cookieUsername.setMaxAge(0);
 				response.addCookie(cookieUsername);
 			}
-			RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+			session.invalidate();
+			request.setAttribute("logout_message", "Logout effettuato!");
+			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+			logger.debug("Logout effetuato");
 			dispatcher.forward(request, response);
 			return;
+
 		}
+		// se l'utente non fa il logout, eseguirà le operazioni
+
+		request.setAttribute(jspParamUserId, session_id);
+		Utente userLogged = (Utente) session.getAttribute("utenteSessione");
+		String utente = userLogged.getUsername();
+		Integer id_utente = userLogged.getId_utente();
+
+		setInterface(request, utente, session_id, id_utente);
+
+		logger.trace("Utente in sessione");
+		if (enable.equals(implicitLogin)) {
+			logger.debug("Setting cookieUsername=" + utente);
+			Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
+			cookieUsername.setMaxAge(300);
+			response.addCookie(cookieUsername);
+		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+		dispatcher.forward(request, response);
+		return;
+
 	}
 
 	/**
