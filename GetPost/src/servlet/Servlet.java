@@ -103,7 +103,8 @@ public class Servlet extends HttpServlet {
 					return;
 				}
 
-			} else if (userCookieLogin != null) {// se il cookie è pieno, eseguo login
+			}
+			if (userCookieLogin != null) {// se il cookie è pieno, eseguo login
 				// implicito
 
 				Utente userLogged = login(userCookieLogin.getValue(), null);
@@ -122,6 +123,8 @@ public class Servlet extends HttpServlet {
 				}
 
 			}
+			// se la sessione è vuota, nuova e non c'è un cookie valido indirizzo al login
+			// form
 			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 			dispatcher.forward(request, response);
 			return;
@@ -143,27 +146,26 @@ public class Servlet extends HttpServlet {
 				dispatcher.forward(request, response);
 				return;
 
-			} else {
-				// se l'utente non fa il logout, eseguirà le operazioni
-
-				request.setAttribute(jspParamUserId, session_id);
-				Utente userLogged = (Utente) session.getAttribute("utenteSessione");
-				String utente = userLogged.getUsername();
-				Integer id_utente = userLogged.getId_utente();
-
-				setInterface(request, utente, session_id, id_utente);
-
-				logger.trace("Utente in sessione");
-				if (enable.equals(implicitLogin)) {
-					logger.debug("Setting cookieUsername=" + utente);
-					Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
-					cookieUsername.setMaxAge(300);
-					response.addCookie(cookieUsername);
-				}
-				RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
-				dispatcher.forward(request, response);
-				return;
 			}
+			// se l'utente non fa il logout, eseguirà le operazioni
+
+			request.setAttribute(jspParamUserId, session_id);
+			Utente userLogged = (Utente) session.getAttribute("utenteSessione");
+			String utente = userLogged.getUsername();
+			Integer id_utente = userLogged.getId_utente();
+
+			setInterface(request, utente, session_id, id_utente);
+
+			logger.trace("Utente in sessione");
+			if (enable.equals(implicitLogin)) {
+				logger.debug("Setting cookieUsername=" + utente);
+				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
+				cookieUsername.setMaxAge(300);
+				response.addCookie(cookieUsername);
+			}
+			RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+			dispatcher.forward(request, response);
+			return;
 		}
 	}
 
