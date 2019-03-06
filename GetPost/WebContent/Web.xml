@@ -11,14 +11,5 @@
 		<servlet-name>Servlet</servlet-name>
 		<url-pattern>/Servlet</url-pattern>
 	</servlet-mapping>
-<context-param>
-	<param-name>cookie</param-name>
-	<param-value>enable</param-value>
-</context-param>
-	<resource-ref>
-		<description>postgreSQL Datasource example</description>
-		<res-ref-name>jdbc/postgres</res-ref-name>
-		<res-type>javax.sql.DataSource</res-type>
-		<res-auth>Container</res-auth>
-	</resource-ref>
+
 </web-app>

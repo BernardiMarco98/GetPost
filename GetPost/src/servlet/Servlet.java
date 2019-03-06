@@ -63,7 +63,7 @@ public class Servlet extends HttpServlet {
 		Cookie userCookieLogin = null;
 		logger.debug("implicitLogin = " + implicitLogin);
 
-		if (enable.equals(implicitLogin)) {
+		if (implicitLogin == null || enable.equals(implicitLogin)) {
 			userCookies = request.getCookies();
 			userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
 		} else {
@@ -92,7 +92,7 @@ public class Servlet extends HttpServlet {
 
 					logger.trace("Sessione vuota e cookie valido assente");
 
-					if (enable.equals(implicitLogin)) {
+					if (implicitLogin == null || enable.equals(implicitLogin)) {
 						logger.debug("Setting cookieUsername=" + username);
 						Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 						cookieUsername.setMaxAge(300);
@@ -102,7 +102,6 @@ public class Servlet extends HttpServlet {
 					dispatcher.forward(request, response);
 					return;
 				}
-
 			}
 			if (userCookieLogin != null) {// se il cookie è pieno, eseguo login
 				// implicito
@@ -121,7 +120,6 @@ public class Servlet extends HttpServlet {
 					dispatcher.forward(request, response);
 					return;
 				}
-
 			}
 			// se la sessione è vuota, nuova e non c'è un cookie valido indirizzo al login
 			// form
@@ -134,7 +132,7 @@ public class Servlet extends HttpServlet {
 		if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 			// la pagina jsp di login,stamperà un messaggio di logout
 			// elimino i cookie
-			if (enable.equals(implicitLogin)) {
+			if (implicitLogin == null || enable.equals(implicitLogin)) {
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
 				cookieUsername.setMaxAge(0);
 				response.addCookie(cookieUsername);
@@ -145,9 +143,9 @@ public class Servlet extends HttpServlet {
 			logger.debug("Logout effetuato");
 			dispatcher.forward(request, response);
 			return;
-
 		}
 		// se l'utente non fa il logout, eseguirà le operazioni
+		logger.trace("Utente in sessione");
 
 		request.setAttribute(jspParamUserId, session_id);
 		Utente userLogged = (Utente) session.getAttribute("utenteSessione");
@@ -156,8 +154,7 @@ public class Servlet extends HttpServlet {
 
 		setInterface(request, utente, session_id, id_utente);
 
-		logger.trace("Utente in sessione");
-		if (enable.equals(implicitLogin)) {
+		if (implicitLogin == null || enable.equals(implicitLogin)) {
 			logger.debug("Setting cookieUsername=" + utente);
 			Cookie cookieUsername = new Cookie("usernameServletGetPost", utente);
 			cookieUsername.setMaxAge(300);
@@ -166,7 +163,6 @@ public class Servlet extends HttpServlet {
 		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 		dispatcher.forward(request, response);
 		return;
-
 	}
 
 	/**
@@ -190,11 +186,11 @@ public class Servlet extends HttpServlet {
 
 		logger = Logger.getRootLogger();
 		logger.info("Servlet initialized");
-		ServletContext servletContext = this.getServletContext();
-		implicitLogin = servletContext.getInitParameter("cookie");
+		
 
 		try {
-			Class.forName("org.postgresql.Driver");
+			ServletContext servletContext = this.getServletContext();
+			implicitLogin = servletContext.getInitParameter("cookie");
 			InitialContext initialContext = null;
 			initialContext = new InitialContext();
 
@@ -203,19 +199,22 @@ public class Servlet extends HttpServlet {
 
 			if (dataSource != null) {
 				con = dataSource.getConnection();
-			} else {
-				logger.warn("DataSource null, aggiornare la configurazione");
-			}
-		} catch (ClassNotFoundException | NamingException | SQLException e) {
-			logger.error("Errore nell'inizializzazione, Exception:" + e);
-			try {
-				con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
-			} catch (SQLException dbE) {
-				logger.error("Impossibile connettersi al db, Exception:" + dbE);
-				dbE.printStackTrace();
-			}
+				logger.trace("Connessione tramite risorsa");
+				return;
+			} 
+		} catch (NamingException | SQLException e) {
+			logger.warn("DataSource null o sbagliato, aggiornare la configurazione");
+			
 		}
-
+		
+		try {
+			Class.forName("org.postgresql.Driver");
+			con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
+			logger.trace("Connessione cablata");
+		} catch (ClassNotFoundException | SQLException  dbE) {
+			logger.error("Impossibile connettersi al db, Exception:" + dbE);
+			dbE.printStackTrace();
+		}
 	}
 
 	// funzione che imposta il contenuto della pagina
@@ -255,7 +254,6 @@ public class Servlet extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 			}
 		}
 		try {
@@ -281,6 +279,7 @@ public class Servlet extends HttpServlet {
 		return null;
 	}
 
+	// funzione che interroga il database per controllare se il login è corretto
 	public Utente login(String username, String password) {
 
 		logger.trace("Executing method login");
@@ -313,7 +312,6 @@ public class Servlet extends HttpServlet {
 			} catch (Exception e) {
 				logger.error("Impossibile eseguire la query, Exception:" + e);
 			}
-
 		if (queryPositiva) {
 			// metto dentro utente i dati della riga della tabella
 			// qui non servirebbe un log che ti dice cosa stai mettendo in session ?
