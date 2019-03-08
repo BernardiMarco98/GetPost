@@ -162,11 +162,9 @@ public class Servlet extends HttpServlet {
 			return;
 		} else {
 			logger.debug("cookies disabilitati o configurazione da aggiornare");
-
 			// sessione vuota
 			if (session_user == null) {
 				if (!session.isNew()) {
-					// se il cookie è vuoto, chiedo il login
 					Utente utente = null;
 					String username = request.getParameter("username");
 					String password = request.getParameter("password");
@@ -175,7 +173,6 @@ public class Servlet extends HttpServlet {
 					if ((username != null && password != null) && (utente = login(username, password)) != null) {
 						Integer id_utente = utente.getId_utente();
 						session.setAttribute("utenteSessione", utente);
-
 						request.setAttribute(jspParamUserId, session_id);
 
 						setInterface(request, username, null, id_utente);
@@ -194,7 +191,6 @@ public class Servlet extends HttpServlet {
 				return;
 			}
 			// la sessione è piena
-
 			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
 				// la pagina jsp di login,stamperà un messaggio di logout
 
@@ -219,7 +215,6 @@ public class Servlet extends HttpServlet {
 			dispatcher.forward(request, response);
 			return;
 		}
-
 	}
 
 	/**
@@ -258,14 +253,18 @@ public class Servlet extends HttpServlet {
 				logger.trace("Connessione tramite risorsa");
 				return;
 			}
-			logger.warn("DataSource null, aggiornare la configurazione");
+		} catch (NamingException | SQLException e) {
+			logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e);
+		}
+
+		try {
 			Class.forName("org.postgresql.Driver");
 			con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
 			logger.trace("Connessione cablata");
-
-		} catch (NamingException | SQLException | ClassNotFoundException e) {
+		} catch (ClassNotFoundException | SQLException e) {
 			logger.error("Impossibile connettersi al database, Exception:" + e);
 		}
+
 	}
 
 	// funzione che imposta il contenuto della pagina
