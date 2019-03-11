@@ -348,7 +348,7 @@ public class Servlet extends HttpServlet {
 			try {
 				logger.debug(
 						"Creating utente:" + ", " + resultSet.getString("username") + ", " + resultSet.getString("nome")
-						+ ", " + resultSet.getString("cognome") + ", " + resultSet.getInt("id_utente"));
+								+ ", " + resultSet.getString("cognome") + ", " + resultSet.getInt("id_utente"));
 				utente.setUsername(resultSet.getString("username"));
 				utente.setPassword(resultSet.getString("password"));
 				utente.setNome(resultSet.getString("nome"));
