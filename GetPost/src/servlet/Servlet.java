@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -44,6 +45,7 @@ public class Servlet extends HttpServlet {
 	String jspParamNameColor = "colore";
 	String jspParamUserId = "id";
 	String nomeSessionList = "lista";
+	boolean configurazioneCorretta = true;
 	public Connection con;
 	String implicitLogin = null;
 	private Logger logger = null;
@@ -58,6 +60,13 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// quando sei qui, sai di essere in doGet()
+		if(!configurazioneCorretta)
+		{
+			PrintWriter printWriter = response.getWriter();
+			printWriter.print("Impossibile connettersi al database, aggiornare la configurazione!");
+			printWriter.close();
+		}
+		
 		logger.trace("Executing method doGet");
 		Cookie userCookies[] = null;
 		Cookie userCookieLogin = null;
@@ -253,18 +262,18 @@ public class Servlet extends HttpServlet {
 				logger.trace("Connessione tramite risorsa");
 				return;
 			}
-		} catch (NamingException | SQLException e) {
-			logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e);
-		}
-
-		try {
 			Class.forName("org.postgresql.Driver");
 			con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
 			logger.trace("Connessione cablata");
-		} catch (ClassNotFoundException | SQLException e) {
-			logger.error("Impossibile connettersi al database, Exception:" + e);
-		}
 
+		} catch (NamingException e) {
+			logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e);
+			configurazioneCorretta = false;
+		} catch (ClassNotFoundException e1) {
+			logger.error("Driver per la connessione al database non trovati, Exception:" + e1);
+		} catch (SQLException e2) {
+			logger.error("Impossibile connettersi al database. Exception:" + e2);
+		}
 	}
 
 	// funzione che imposta il contenuto della pagina
