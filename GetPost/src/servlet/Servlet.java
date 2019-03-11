@@ -65,8 +65,7 @@ public class Servlet extends HttpServlet {
 			printWriter.print("Impossibile connettersi al database, aggiornare la configurazione!");
 			printWriter.close();
 		}
-
-		boolean cookiesEnable = false;
+		
 		logger.trace("Executing method doGet");
 		Cookie userCookies[] = null;
 		Cookie userCookieLogin = null;
@@ -75,12 +74,11 @@ public class Servlet extends HttpServlet {
 		String session_id = session.getId();
 		Utente session_user = (Utente) session.getAttribute("utenteSessione");
 		
-		if (implicitLogin == null || enable.equalsIgnoreCase(implicitLogin)) {
-			// eseguo l'intera applicazione con i cookies abilitati
+		if (enable.equalsIgnoreCase(implicitLogin)) {
+
 			logger.debug("Valore del parametro accettato");
 			userCookies = request.getCookies();
 			userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
-			cookiesEnable = true;
 			
 			if(session_user !=null)
 			{
@@ -105,7 +103,7 @@ public class Servlet extends HttpServlet {
 						setInterface(request, username, null, id_utente);
 						logger.trace("Sessione vuota e cookie valido assente");
 						
-						if(cookiesEnable)
+						if(enable.equalsIgnoreCase(implicitLogin))
 						{
 							logger.debug("Setting cookieUsername=" + username);
 							Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
@@ -196,7 +194,12 @@ public class Servlet extends HttpServlet {
 
 		try {
 			ServletContext servletContext = this.getServletContext();
+			
 			implicitLogin = servletContext.getInitParameter("cookie");
+			if (implicitLogin == null) {
+				implicitLogin = "enable";
+			}
+			
 			InitialContext initialContext = null;
 			initialContext = new InitialContext();
 
@@ -213,12 +216,11 @@ public class Servlet extends HttpServlet {
 			logger.trace("Connessione cablata");
 
 		} catch (NamingException e) {
-			logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e);
-			configurazioneCorretta = false;
-		} catch (ClassNotFoundException e1) {
-			logger.error("Driver per la connessione al database non trovati, Exception:" + e1);
-		} catch (SQLException e2) {
-			logger.error("Impossibile connettersi al database. Exception:" + e2);
+			logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e.toString());
+		} catch (ClassNotFoundException e) {
+			logger.error("Driver per la connessione al database non trovati, Exception:" + e.toString());
+		} catch (SQLException e) {
+			logger.error("Impossibile connettersi al database. Exception:" + e.toString());
 		}
 	}
 
