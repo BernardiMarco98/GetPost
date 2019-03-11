@@ -66,6 +66,7 @@ public class Servlet extends HttpServlet {
 			printWriter.close();
 		}
 
+		boolean cookiesEnable = false;
 		logger.trace("Executing method doGet");
 		Cookie userCookies[] = null;
 		Cookie userCookieLogin = null;
@@ -79,6 +80,7 @@ public class Servlet extends HttpServlet {
 			logger.debug("Valore del parametro accettato");
 			userCookies = request.getCookies();
 			userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
+			cookiesEnable = true;
 			
 			if(session_user !=null)
 			{
@@ -102,7 +104,14 @@ public class Servlet extends HttpServlet {
 						request.setAttribute(jspParamUserId, session_id);
 						setInterface(request, username, null, id_utente);
 						logger.trace("Sessione vuota e cookie valido assente");
-
+						
+						if(cookiesEnable)
+						{
+							logger.debug("Setting cookieUsername=" + username);
+							Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
+							cookieUsername.setMaxAge(300);
+							response.addCookie(cookieUsername);
+						}
 						
 						RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 						dispatcher.forward(request, response);
