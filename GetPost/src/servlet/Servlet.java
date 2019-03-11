@@ -81,7 +81,7 @@ public class Servlet extends HttpServlet {
 			userCookies = request.getCookies();
 			userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
 
-			if (session_user != null) {
+			if (session_user != null && userCookieLogin == null) {
 				logger.debug("Setting cookieUsername=" + session_user.getUsername());
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", session_user.getUsername());
 				cookieUsername.setMaxAge(300);
@@ -108,7 +108,6 @@ public class Servlet extends HttpServlet {
 
 					logger.trace("Sessione vuota e cookie valido assente");
 
-					
 					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
 					dispatcher.forward(request, response);
 					return;
@@ -233,30 +232,29 @@ public class Servlet extends HttpServlet {
 		request.setAttribute("metodo", metodo);
 		request.setAttribute("username", username);
 
-		if (sessione != null) {
-			String addendo1 = (String) request.getParameter(reqParamNameVal1);
-			String addendo2 = (String) request.getParameter(reqParamNameVal2);
-			// dovrei farlo qui così vedo anche quando sono vuoti
-			// si ( al netto che non ricordo come si comporta se sono null , non so se va in
-			// crash .. da provare )
-			logger.debug("Parametri somma letti: addendo1=" + addendo1 + " , addendo2=" + addendo2);
-			if ((addendo1 == null) && (addendo2 == null)) {
-				request.setAttribute(jspParamNameColor, coloreHome);
-			} else {
-				if (request.getMethod().equals("GET"))
-					request.setAttribute(jspParamNameColor, "yellow");
-				else
-					request.setAttribute(jspParamNameColor, "red");
-				String risultato = operazioni(addendo1, addendo2);
-				request.setAttribute(jspParamNameResult, risultato);
+		String addendo1 = (String) request.getParameter(reqParamNameVal1);
+		String addendo2 = (String) request.getParameter(reqParamNameVal2);
+		// dovrei farlo qui così vedo anche quando sono vuoti
+		// si ( al netto che non ricordo come si comporta se sono null , non so se va in
+		// crash .. da provare )
+		logger.debug("Parametri somma letti: addendo1=" + addendo1 + " , addendo2=" + addendo2);
+		if ((addendo1 == null) && (addendo2 == null)) {
+			request.setAttribute(jspParamNameColor, coloreHome);
+		} else {
+			if (request.getMethod().equals("GET"))
+				request.setAttribute(jspParamNameColor, "yellow");
+			else
+				request.setAttribute(jspParamNameColor, "red");
+			String risultato = operazioni(addendo1, addendo2);
+			request.setAttribute(jspParamNameResult, risultato);
 
-				try {
-					insert(metodo, addendo1, addendo2, risultato, date, sessione, id);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			try {
+				insert(metodo, addendo1, addendo2, risultato, date, sessione, id);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+
 		}
 		try {
 			risultati = queryResult(id);
@@ -327,6 +325,7 @@ public class Servlet extends HttpServlet {
 				utente.setId_utente(resultSet.getInt("id_utente"));
 				logger.debug("Dati utente messo in sessione: Username=" + utente.getUsername() + ", Nome:"
 						+ utente.getNome() + ", Cognome=" + utente.getCognome() + ", ID=" + utente.getId_utente());
+				logger.debug("Setting cookieUsername=" + utente.getUsername());
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", utente.getUsername());
 				cookieUsername.setMaxAge(300);
 				response.addCookie(cookieUsername);
