@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -48,6 +47,7 @@ public class Servlet extends HttpServlet {
 	boolean configurazioneCorretta = true;
 	public Connection con;
 	String implicitLogin = null;
+	boolean cookiesEnable = false;
 	private Logger logger = null;
 
 	/**
@@ -64,6 +64,7 @@ public class Servlet extends HttpServlet {
 			PrintWriter printWriter = response.getWriter();
 			printWriter.print("Impossibile connettersi al database, aggiornare la configurazione!");
 			printWriter.close();
+			return;
 		}
 
 		logger.trace("Executing method doGet");
@@ -74,7 +75,8 @@ public class Servlet extends HttpServlet {
 		String session_id = session.getId();
 		Utente session_user = (Utente) session.getAttribute("utenteSessione");
 
-		if (enable.equals(implicitLogin)) {
+		logger.debug("CookiesEnable = " + cookiesEnable);
+		if (cookiesEnable) {
 
 			userCookies = request.getCookies();
 			userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
@@ -101,7 +103,7 @@ public class Servlet extends HttpServlet {
 					setInterface(request, username, null, id_utente);
 					logger.trace("Sessione vuota e cookie valido assente");
 
-					if (enable.equals(implicitLogin)) {
+					if (cookiesEnable) {
 						logger.debug("Setting cookieUsername=" + username);
 						Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 						cookieUsername.setMaxAge(300);
@@ -192,10 +194,21 @@ public class Servlet extends HttpServlet {
 			ServletContext servletContext = this.getServletContext();
 
 			implicitLogin = servletContext.getInitParameter("cookie");
-			if (implicitLogin == null || checkParameter(implicitLogin)) {
-				implicitLogin = "enable";
+			//se il parametro è vuoto o non esiste, setto i cookies
+			if (implicitLogin == null) {
+				cookiesEnable = true;
 			}
-
+			//se il parametro non appartiene al vocabolario, setto i cookies
+			else if(!checkImplicitLogin(implicitLogin)) {
+				cookiesEnable = true;
+			}
+			//se il parametro appartiene al vocabolario e vale "enable", abilito i cookies
+			else if(checkImplicitLogin(implicitLogin) && enable.equalsIgnoreCase(implicitLogin)) {
+				cookiesEnable = true;
+			}
+			//se il parametro appartiene al vocabolario ma vale "disable", disabilito i cookies
+			else cookiesEnable = false;
+			
 			InitialContext initialContext = null;
 			initialContext = new InitialContext();
 
@@ -215,33 +228,32 @@ public class Servlet extends HttpServlet {
 			logger.trace("Connessione cablata");
 
 		} catch (Exception e) {
-
-			if (e instanceof NamingException) {
+			
+			if (e.getClass().getName() == "javax.naming.NameNotFoundException") {
 				logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e.toString());
+				configurazioneCorretta = false;
 				return;
 			}
-			if (e instanceof ClassNotFoundException) {
+			if (e.getClass().getName() == "java.lang.ClassNotFoundException") {
 				logger.error("Driver per la connessione al database non trovati, Exception:" + e.toString());
 				return;
 			}
-			if (e instanceof SQLException) {
+			if (e.getClass().getName() == "java.sql.SQLException") {
 				logger.error("Impossibile connettersi al database. Exception:" + e.toString());
 				return;
 			}
-
-			if (e instanceof Exception)
-				logger.error("Error found during init method, Exception:" + e.toString());
+			logger.error("Error found during init method, Exception:" + e.toString());
 		}
 	}
 
-	// funzione che controlla la coerenza del valore passato da conf
-	public boolean checkParameter(String Parameter) {
+	// funzione che controlla se il valore passato da conf appartiene al "dizionario"
+	public boolean checkImplicitLogin (String Parameter) {
 		if (Parameter.equalsIgnoreCase("disable"))
-			return false;
+			return true;
 		if (Parameter.equalsIgnoreCase("enable"))
 			return true;
 		logger.debug("Parameter = " + Parameter + ", non appartiene ai valori accettati.. cookies abilitati");
-		return true;
+		return false;
 	}
 
 	// funzione che imposta il contenuto della pagina
