@@ -65,7 +65,7 @@ public class Servlet extends HttpServlet {
 			printWriter.print("Impossibile connettersi al database, aggiornare la configurazione!");
 			printWriter.close();
 		}
-		
+
 		logger.trace("Executing method doGet");
 		Cookie userCookies[] = null;
 		Cookie userCookieLogin = null;
@@ -73,102 +73,98 @@ public class Servlet extends HttpServlet {
 		HttpSession session = request.getSession();
 		String session_id = session.getId();
 		Utente session_user = (Utente) session.getAttribute("utenteSessione");
-		
-		if (enable.equalsIgnoreCase(implicitLogin)) {
 
-			logger.debug("Valore del parametro accettato");
+		if (enable.equals(implicitLogin)) {
+
 			userCookies = request.getCookies();
 			userCookieLogin = getCookie(userCookies, "usernameServletGetPost");
-			
-			if(session_user !=null)
-			{
+
+			if (session_user != null) {
 				logger.debug("Setting cookieUsername=" + session_user.getUsername());
 				Cookie cookieUsername = new Cookie("usernameServletGetPost", session_user.getUsername());
 				cookieUsername.setMaxAge(300);
 				response.addCookie(cookieUsername);
 			}
 		}
-			// sessione vuota
-			if (session_user == null) {
-				if (!session.isNew() && userCookieLogin == null) {
-					// se il cookie è vuoto, chiedo il login
-					Utente utente = null;
-					String username = request.getParameter("username");
-					String password = request.getParameter("password");
-					logger.debug("Parametri login ricevuti: username:" + username + " password:*******");
-					if ((username != null && password != null) && (utente = login(username, password)) != null) {
-						Integer id_utente = utente.getId_utente();
-						session.setAttribute("utenteSessione", utente);
-						request.setAttribute(jspParamUserId, session_id);
-						setInterface(request, username, null, id_utente);
-						logger.trace("Sessione vuota e cookie valido assente");
-						
-						if(enable.equalsIgnoreCase(implicitLogin))
-						{
-							logger.debug("Setting cookieUsername=" + username);
-							Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
-							cookieUsername.setMaxAge(300);
-							response.addCookie(cookieUsername);
-						}
-						
-						RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
-						dispatcher.forward(request, response);
-						return;
-					}
-				}
-				if (userCookieLogin != null) {// se il cookie è pieno, eseguo login
-					// implicito
-					Utente userLogged = login(userCookieLogin.getValue(), null);
-					if (userLogged != null) {
-						session.setAttribute("utenteSessione", userLogged);
-						request.setAttribute(jspParamUserId, session_id);
-						String usernameUtente = userLogged.getUsername();
-						Integer id_utente = userLogged.getId_utente();
-						setInterface(request, usernameUtente, null, id_utente);
-						logger.debug("Setting cookieUsername=" + usernameUtente);
+		// sessione vuota
+		if (session_user == null) {
+			if (!session.isNew() && userCookieLogin == null) {
+				// se il cookie è vuoto, chiedo il login
+				Utente utente = null;
+				String username = request.getParameter("username");
+				String password = request.getParameter("password");
+				logger.debug("Parametri login ricevuti: username:" + username + " password:*******");
+				if ((username != null && password != null) && (utente = login(username, password)) != null) {
+					Integer id_utente = utente.getId_utente();
+					session.setAttribute("utenteSessione", utente);
+					request.setAttribute(jspParamUserId, session_id);
+					setInterface(request, username, null, id_utente);
+					logger.trace("Sessione vuota e cookie valido assente");
 
-						Cookie cookieUsername = new Cookie("usernameServletGetPost", usernameUtente);
+					if (enable.equals(implicitLogin)) {
+						logger.debug("Setting cookieUsername=" + username);
+						Cookie cookieUsername = new Cookie("usernameServletGetPost", username);
 						cookieUsername.setMaxAge(300);
 						response.addCookie(cookieUsername);
-						RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
-						dispatcher.forward(request, response);
-						return;
 					}
+
+					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+					dispatcher.forward(request, response);
+					return;
 				}
-				// se la sessione è vuota, nuova e non c'è un cookie valido indirizzo al login
-				// form
-				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-				dispatcher.forward(request, response);
-				return;
 			}
-			// la sessione è piena
-			if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
-				// la pagina jsp di login,stamperà un messaggio di logout
-				// elimino i cookie
-				Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
-				cookieUsername.setMaxAge(0);
-				response.addCookie(cookieUsername);
-				session.invalidate();
-				request.setAttribute("logout_message", "Logout effettuato!");
-				RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-				logger.debug("Logout effetuato");
-				dispatcher.forward(request, response);
-				return;
+			if (userCookieLogin != null) {// se il cookie è pieno, eseguo login
+				// implicito
+				Utente userLogged = login(userCookieLogin.getValue(), null);
+				if (userLogged != null) {
+					session.setAttribute("utenteSessione", userLogged);
+					request.setAttribute(jspParamUserId, session_id);
+					String usernameUtente = userLogged.getUsername();
+					Integer id_utente = userLogged.getId_utente();
+					setInterface(request, usernameUtente, null, id_utente);
+					logger.debug("Setting cookieUsername=" + usernameUtente);
+
+					Cookie cookieUsername = new Cookie("usernameServletGetPost", usernameUtente);
+					cookieUsername.setMaxAge(300);
+					response.addCookie(cookieUsername);
+					RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+					dispatcher.forward(request, response);
+					return;
+				}
 			}
-			// se l'utente non fa il logout, eseguirà le operazioni
-			logger.trace("Utente in sessione");
-			request.setAttribute(jspParamUserId, session_id);
-			Utente userLogged = (Utente) session.getAttribute("utenteSessione");
-			String utente = userLogged.getUsername();
-			Integer id_utente = userLogged.getId_utente();
-			setInterface(request, utente, session_id, id_utente);
-			logger.debug("Setting cookieUsername=" + utente);
-			
-			RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+			// se la sessione è vuota, nuova e non c'è un cookie valido indirizzo al login
+			// form
+			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 			dispatcher.forward(request, response);
 			return;
-		} 
-	
+		}
+		// la sessione è piena
+		if (request.getParameter("logout") != null && request.getParameter("logout").equals("t")) {
+			// la pagina jsp di login,stamperà un messaggio di logout
+			// elimino i cookie
+			Cookie cookieUsername = new Cookie("usernameServletGetPost", "");
+			cookieUsername.setMaxAge(0);
+			response.addCookie(cookieUsername);
+			session.invalidate();
+			request.setAttribute("logout_message", "Logout effettuato!");
+			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+			logger.debug("Logout effetuato");
+			dispatcher.forward(request, response);
+			return;
+		}
+		// se l'utente non fa il logout, eseguirà le operazioni
+		logger.trace("Utente in sessione");
+		request.setAttribute(jspParamUserId, session_id);
+		Utente userLogged = (Utente) session.getAttribute("utenteSessione");
+		String utente = userLogged.getUsername();
+		Integer id_utente = userLogged.getId_utente();
+		setInterface(request, utente, session_id, id_utente);
+		logger.debug("Setting cookieUsername=" + utente);
+
+		RequestDispatcher dispatcher = request.getRequestDispatcher(nomejsp);
+		dispatcher.forward(request, response);
+		return;
+	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
@@ -194,34 +190,58 @@ public class Servlet extends HttpServlet {
 
 		try {
 			ServletContext servletContext = this.getServletContext();
-			
+
 			implicitLogin = servletContext.getInitParameter("cookie");
-			if (implicitLogin == null) {
+			if (implicitLogin == null || checkParameter(implicitLogin)) {
 				implicitLogin = "enable";
 			}
-			
+
 			InitialContext initialContext = null;
 			initialContext = new InitialContext();
 
 			DataSource dataSource = null;
 			dataSource = (DataSource) initialContext.lookup("java:/comp/env/jdbc/postgres");
 
+			// se il dataSource non è nullo, quindi corretto, verrà fatta una connessione
+			// tramite risorsa
 			if (dataSource != null) {
 				con = dataSource.getConnection();
 				logger.trace("Connessione tramite risorsa");
 				return;
 			}
+			// se il dataSource è nullo, verrà fatta una connessione cablata
 			Class.forName("org.postgresql.Driver");
 			con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/getpost", "postgres", "postgre");
 			logger.trace("Connessione cablata");
 
-		} catch (NamingException e) {
-			logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e.toString());
-		} catch (ClassNotFoundException e) {
-			logger.error("Driver per la connessione al database non trovati, Exception:" + e.toString());
-		} catch (SQLException e) {
-			logger.error("Impossibile connettersi al database. Exception:" + e.toString());
+		} catch (Exception e) {
+
+			if (e instanceof NamingException) {
+				logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e.toString());
+				return;
+			}
+			if (e instanceof ClassNotFoundException) {
+				logger.error("Driver per la connessione al database non trovati, Exception:" + e.toString());
+				return;
+			}
+			if (e instanceof SQLException) {
+				logger.error("Impossibile connettersi al database. Exception:" + e.toString());
+				return;
+			}
+
+			if (e instanceof Exception)
+				logger.error("Error found during init method, Exception:" + e.toString());
 		}
+	}
+
+	// funzione che controlla la coerenza del valore passato da conf
+	public boolean checkParameter(String Parameter) {
+		if (Parameter.equalsIgnoreCase("disable"))
+			return false;
+		if (Parameter.equalsIgnoreCase("enable"))
+			return true;
+		logger.debug("Parameter = " + Parameter + ", non appartiene ai valori accettati.. cookies abilitati");
+		return true;
 	}
 
 	// funzione che imposta il contenuto della pagina
@@ -322,9 +342,9 @@ public class Servlet extends HttpServlet {
 		if (queryPositiva) {
 			// metto dentro utente i dati della riga della tabella
 			try {
-				logger.debug(
-						"Creating utente:" + ", " + resultSet.getString("username") + ", " + resultSet.getString("nome")
-								+ ", " + resultSet.getString("cognome") + ", " + resultSet.getInt("id_utente"));
+				logger.debug("Creating utente-> " + "username: " + resultSet.getString("username") + ", nome: "
+						+ resultSet.getString("nome") + ", cognome: " + resultSet.getString("cognome") + ", id_utente: "
+						+ resultSet.getInt("id_utente"));
 				utente.setUsername(resultSet.getString("username"));
 				utente.setPassword(resultSet.getString("password"));
 				utente.setNome(resultSet.getString("nome"));
