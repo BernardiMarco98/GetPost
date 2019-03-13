@@ -1,7 +1,6 @@
 package servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -34,8 +33,27 @@ import org.apache.log4j.Logger;
 public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	String enable = "enable";
-	String errore = "errore";
+	
+	// qui hai usato una stringa per definire il valore "enable"
+	// e poterlo poi controllare con la tringa del file di conf...
+	// va bene, ma allora la userei meglio ... guarda	
+	static String cookiesParamEnable = "enable";
+	static String cookiesParamDisable = "disable";
+	// ok .. ? chiaro il motivo di questa scelta ?
+	// ?perchè uso più volte la solita stringa
+	// ? non ho capito ... c'e' un motivo ben preciso del perche' e' meglio fare cosi ...
+	// prova a pensarci un sec ( o forse e' quello che intendevi nella tua risposta ma allora non 
+	// l'ho capita .... :-)
+	// ... perchè se in futuro il valore del parametro per il quale attivo o disattivo i cookies dovesse
+	// cambiare, basta modificare la costante e non tutti i punti dove controllo la stringa
+	// ok . .ma anche perche' se tu fai riferimento direttamente alla stringa ( es: "enable" )
+	// potresti commettere l'errore di scrivere in un punto "enable"  e in un altro "anable"
+	// e tutto va a p...e .... ok ? quella stringa e' usata piu volte ... diventa una variabile
+	
+	
+	// tutte queste sono costanti
+	// riguardati cosa significa il modificatore static ( scope delle variabili )
+	String errore = "errore";	
 	String nomejsp = "getpost.jsp";
 	String coloreHome = "white";
 	String reqParamNameVal1 = "valore1";
@@ -44,10 +62,41 @@ public class Servlet extends HttpServlet {
 	String jspParamNameColor = "colore";
 	String jspParamUserId = "id";
 	String nomeSessionList = "lista";
-	boolean configurazioneCorretta = true;
+	//------
+	
 	public Connection con;
-	String implicitLogin = null;
+
+	// non sono convinto che queste variabili debbano avere questo scope ...
+	// secondo me e' un errore ... poi ci ritorniamo sopra ( me ne sono accorto adesso .. )
+	//
+	// torniamo qui .... ora ...vorrei tu ripensassi ad alcuni discorsi 
+	// fatti originariamente ( i primi giorni in cui abbiamo cominciato a guardare le servlet )
+	// se ti ricordi avevamo fatto un discorso in merito a variabili globali o locali 
+	// e al rischio che comporta l'utilizzarle male (ancora una volta ritorna il concetto di scope ... )
+	// ti ricordi qualcosa in questo senso ?
+	// ?si, sul multithreading...
+	// esattamente .....
+	// queste due informazioni , sono diverse da request a request .. giusto ?
+	// ?giusto
+	// no , sto dicendo cazzate ..perchè vengano settate una sola volta per tutte le request nell'init?
+	// si , esatto .. sto dicendo cazzata .. puo' andar bene che siano cosi ...
 	boolean cookiesEnable = false;
+
+	// piu che altro, implicitLogin e' totalmente inutile come variabile
+	// globale all'applicazione .. e' una variabile locale al metodo di init..
+	// prova a vedere quando la usi...
+	// visto ?
+	// si,
+	
+	// spe ... non ho cpaito l'uso di questa ..
+	// me la spieghi ?
+	// se la configurazione è sbagliata da file, quando catturo l'eccezione la
+	// setto false e quando viene eseguito il programma
+	// vado in questo blocco:
+	// aspetta .. quindi appare una pagina copn scritto "configurazione non corretta " ?
+	// ?si
+	// mmh 
+	
 	private Logger logger = null;
 
 	/**
@@ -60,17 +109,16 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// quando sei qui, sai di essere in doGet()
-		if (!configurazioneCorretta) {
-			PrintWriter printWriter = response.getWriter();
-			printWriter.print("Impossibile connettersi al database, aggiornare la configurazione!");
-			printWriter.close();
-			return;
-		}
 
 		logger.trace("Executing method doGet");
 		Cookie userCookies[] = null;
 		Cookie userCookieLogin = null;
-		logger.debug("implicitLogin = " + implicitLogin);
+		// nel doGet() (ad ogni request) solo qui e solo per un log
+		// questo log , non serve qui .. scrivere ad ogni request che stai
+		// lavorando con implicitLoginn enabled o disabled , non serve a nulla
+		// dato che e' una informazione di init ... non ha senso continuare a scriverla
+		// ad ogni request ... il suo valore non cambiera' mai ...
+		// giusto ?giusto
 		HttpSession session = request.getSession();
 		String session_id = session.getId();
 		Utente session_user = (Utente) session.getAttribute("utenteSessione");
@@ -189,25 +237,36 @@ public class Servlet extends HttpServlet {
 
 		logger = Logger.getRootLogger();
 		logger.info("Servlet initialized");
-
+		String implicitLogin = null;
+		
 		try {
 			ServletContext servletContext = this.getServletContext();
 
+			// ok 
+			cookiesEnable = false;
+			
+			// poi la usi solo qui
 			implicitLogin = servletContext.getInitParameter("cookie");
 			//se il parametro è vuoto o non esiste, setto i cookies
 			if (implicitLogin == null) {
 				cookiesEnable = true;
 			}
 			//se il parametro non appartiene al vocabolario, setto i cookies
-			else if(!checkImplicitLogin(implicitLogin)) {
+			else if(!isImplicitLoginValid(implicitLogin)) {
 				cookiesEnable = true;
 			}
 			//se il parametro appartiene al vocabolario e vale "enable", abilito i cookies
-			else if(checkImplicitLogin(implicitLogin) && enable.equalsIgnoreCase(implicitLogin)) {
+			// vedi che adesso  il codice e' piu' "..discorsivo..." anche per chi non sa niente di informatica ..
+			// ora e' uno pseudo-inglese
+			
+			// qui non capisco perche' controlli ancora se e' valido ...
+			// l'hai gia fatto prima .. perche' rifarlo ?
+			// ? marco ? si, non serve
+			
+			else if(implicitLogin.equalsIgnoreCase(cookiesParamEnable)) {
 				cookiesEnable = true;
 			}
-			//se il parametro appartiene al vocabolario ma vale "disable", disabilito i cookies
-			else cookiesEnable = false;
+			
 			
 			InitialContext initialContext = null;
 			initialContext = new InitialContext();
@@ -228,10 +287,22 @@ public class Servlet extends HttpServlet {
 			logger.trace("Connessione cablata");
 
 		} catch (Exception e) {
-			
+		
+			// perche' hai usato getName e non getSimpleName() ?
+			// va bene eh ! .. ma perche' hai fatto questa scelta ?
+			// ?così mi ricordo di guardare la documentazione xD
+			// .. mmh speravo l'avessi fatto per un motivo piu' "nobile"
+			// non hai per caso verificato se esistono due eccezioni con stesso simpleName
+			// in packages diversi !?!?!
+			// es :
+			// javax.naming.NameNotFoundException e java.lang.NameNotFoundException 
+			// ??
+			// ( ho sparato un package a caso ... ma il dubbio potrebbe venire ..
+			// e in quel caso non sarebbero la stessa eccezione !!
+			// ti documenti in questo senso ?
+			// ?yes
 			if (e.getClass().getName() == "javax.naming.NameNotFoundException") {
 				logger.error("Impossibile connettersi al database tramite risorsa, Exception:" + e.toString());
-				configurazioneCorretta = false;
 				return;
 			}
 			if (e.getClass().getName() == "java.lang.ClassNotFoundException") {
@@ -247,12 +318,29 @@ public class Servlet extends HttpServlet {
 	}
 
 	// funzione che controlla se il valore passato da conf appartiene al "dizionario"
-	public boolean checkImplicitLogin (String Parameter) {
-		if (Parameter.equalsIgnoreCase("disable"))
+	
+	// qui ... cambierei il nome al metodo ... di solito i metodi che ritornano boolean
+	// si chiamano isQualcosa ... rende il codice piu' leggibile
+	
+	// p.s: i nomi delle variabili, in java , per convenzione iniziano con minuscola
+	// se iniziano con maiuscola sono Classi ....
+	// ok ?
+	//ok
+	public boolean isImplicitLoginValid (String parameter) {
+		
+		if (parameter.equalsIgnoreCase(cookiesParamDisable))
 			return true;
-		if (Parameter.equalsIgnoreCase("enable"))
+		if (parameter.equalsIgnoreCase(cookiesParamEnable))
 			return true;
-		logger.debug("Parameter = " + Parameter + ", non appartiene ai valori accettati.. cookies abilitati");
+		
+		// sempre per dare a ciascun pezzo di codice la propria competenza ...
+		// questo metodo si occupa solo di dire se una stringa e' valida o no 
+		// non si occupa di stabilire se i cookies sono o non sono abilitati ( lo fa qualcun'altro)
+		// quindi non ha senso questo messaggio di log
+		
+		// ok ?
+		//ok
+		logger.debug("parameter = " + parameter + ", non appartiene ai valori accettati");	
 		return false;
 	}
 
