@@ -53,15 +53,15 @@ public class Servlet extends HttpServlet {
 	
 	// tutte queste sono costanti
 	// riguardati cosa significa il modificatore static ( scope delle variabili )
-	String errore = "errore";	
-	String nomejsp = "getpost.jsp";
-	String coloreHome = "white";
-	String reqParamNameVal1 = "valore1";
-	String reqParamNameVal2 = "valore2";
-	String jspParamNameResult = "risultato";
-	String jspParamNameColor = "colore";
-	String jspParamUserId = "id";
-	String nomeSessionList = "lista";
+	static String errore = "errore";	
+	static String nomejsp = "getpost.jsp";
+	static String coloreHome = "white";
+	static String reqParamNameVal1 = "valore1";
+	static String reqParamNameVal2 = "valore2";
+	static String jspParamNameResult = "risultato";
+	static String jspParamNameColor = "colore";
+	static String jspParamUserId = "id";
+	static String nomeSessionList = "lista";
 	//------
 	
 	public Connection con;
